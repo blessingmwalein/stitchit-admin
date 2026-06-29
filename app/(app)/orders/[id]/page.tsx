@@ -81,10 +81,10 @@ export default function OrderDetailPage() {
       />
 
       <div className="px-6 grid grid-cols-4 gap-3">
-        <KpiCard label="Total" value={`$${Number(order.total).toFixed(2)}`} />
-        <KpiCard label="Deposit required" value={`$${Number(order.depositRequired ?? 0).toFixed(2)}`} />
-        <KpiCard label="Balance" value={`$${Number(order.balance ?? 0).toFixed(2)}`} />
-        <KpiCard label="Items" value={String(order.items?.length ?? 0)} />
+        <KpiCard title="Total" value={`$${Number(order.total).toFixed(2)}`} />
+        <KpiCard title="Deposit required" value={`$${Number(order.depositRequired ?? 0).toFixed(2)}`} />
+        <KpiCard title="Balance" value={`$${Number(order.balance ?? 0).toFixed(2)}`} />
+        <KpiCard title="Items" value={String(order.items?.length ?? 0)} />
       </div>
 
       <div className="px-6">

@@ -4,26 +4,34 @@ import * as React from "react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
-  AlertDialogHeader, AlertDialogTitle,
+  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 interface ConfirmDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  /** When provided the dialog manages its own open state via this trigger element */
+  trigger?: React.ReactNode;
+  /** Required when no trigger is provided (externally controlled) */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   title: string;
   description?: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  onConfirm: () => void | Promise<void>;
+  onConfirm: () => unknown;
   destructive?: boolean;
 }
 
 export function ConfirmDialog({
-  open, onOpenChange, title, description,
+  trigger, open, onOpenChange, title, description,
   confirmLabel = "Confirm", cancelLabel = "Cancel",
   onConfirm, destructive,
 }: ConfirmDialogProps) {
   const [loading, setLoading] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
+
+  const isControlled = open !== undefined;
+  const resolvedOpen = isControlled ? open : internalOpen;
+  const setOpen = isControlled ? (onOpenChange ?? (() => {})) : setInternalOpen;
 
   async function handleConfirm() {
     setLoading(true);
@@ -31,12 +39,13 @@ export function ConfirmDialog({
       await onConfirm();
     } finally {
       setLoading(false);
-      onOpenChange(false);
+      setOpen(false);
     }
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={resolvedOpen} onOpenChange={setOpen}>
+      {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

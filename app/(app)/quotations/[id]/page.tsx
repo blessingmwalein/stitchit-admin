@@ -58,17 +58,17 @@ export default function QuotationDetailPage() {
           <ConfirmDialog
             trigger={<Button size="sm">Convert to order</Button>}
             title="Convert to Order?"
-            description={`This will create an order from ${quote.quoteNumber}.`}
+            description={`This will create an order from ${quote.quotationNumber}.`}
             onConfirm={() => convertMut.mutateAsync()}
           />
         )}
       </PageHeader>
 
       <div className="px-6 grid grid-cols-4 gap-3">
-        <KpiCard label="Subtotal" value={`$${Number(quote.subtotal).toFixed(2)}`} />
-        <KpiCard label="Tax" value={`$${Number(quote.tax ?? 0).toFixed(2)}`} />
-        <KpiCard label="Total" value={`$${Number(quote.total).toFixed(2)}`} />
-        <KpiCard label="Items" value={String(quote.items?.length ?? 0)} />
+        <KpiCard title="Subtotal" value={`$${Number(quote.subtotal).toFixed(2)}`} />
+        <KpiCard title="Tax" value={`$${Number(quote.tax ?? 0).toFixed(2)}`} />
+        <KpiCard title="Total" value={`$${Number(quote.total).toFixed(2)}`} />
+        <KpiCard title="Items" value={String(quote.items?.length ?? 0)} />
       </div>
 
       <div className="px-6">

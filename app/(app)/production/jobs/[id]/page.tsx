@@ -53,10 +53,10 @@ export default function JobDetailPage() {
       </PageHeader>
 
       <div className="px-6 grid grid-cols-4 gap-3">
-        <KpiCard label="Progress" value={`${progress}%`} />
-        <KpiCard label="Current stage" value={stageLabel(job.currentStage)} />
-        <KpiCard label="Size" value={`${job.widthCm} × ${job.heightCm} cm`} />
-        <KpiCard label={job.isDelayed ? "Status" : "Customer"} value={job.isDelayed ? "⚠ Delayed" : job.customerName} />
+        <KpiCard title="Progress" value={`${progress}%`} />
+        <KpiCard title="Current stage" value={stageLabel(job.currentStage)} />
+        <KpiCard title="Size" value={`${job.widthCm} × ${job.heightCm} cm`} />
+        <KpiCard title={job.isDelayed ? "Status" : "Customer"} value={job.isDelayed ? "⚠ Delayed" : job.customerName} />
       </div>
 
       <div className="px-6">
