@@ -2,8 +2,8 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
-  title: string;
-  description?: string;
+  title: React.ReactNode;
+  description?: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
 }
@@ -14,7 +14,7 @@ export function PageHeader({ title, description, children, className }: PageHead
       <div className="min-w-0">
         <h1 className="text-lg font-semibold leading-none tracking-tight">{title}</h1>
         {description && (
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          <div className="mt-1 text-sm text-muted-foreground">{description}</div>
         )}
       </div>
       {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}
