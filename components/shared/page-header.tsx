@@ -10,11 +10,11 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, children, className }: PageHeaderProps) {
   return (
-    <div className={cn("flex items-start justify-between gap-4 border-b bg-card px-6 py-4", className)}>
+    <div className={cn("flex items-center justify-between gap-4 border-b bg-card px-6 py-5", className)}>
       <div className="min-w-0">
-        <h1 className="text-lg font-semibold leading-none tracking-tight">{title}</h1>
+        <h1 className="text-xl font-bold leading-none tracking-tight">{title}</h1>
         {description && (
-          <div className="mt-1 text-sm text-muted-foreground">{description}</div>
+          <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
         )}
       </div>
       {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}

@@ -45,9 +45,9 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  /* Zinc neutrals */
-  --background: oklch(1 0 0);
+  --radius: 0.875rem;
+  /* Zinc neutrals — light-gray page bg so white cards pop */
+  --background: oklch(0.975 0.001 286.375);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
@@ -123,5 +123,9 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Soft card elevation — overrides the flat shadow-sm from shadcn */
+  .shadow-sm {
+    box-shadow: 0 1px 4px rgba(0,0,0,.04), 0 0 1px rgba(0,0,0,.06);
   }
 }

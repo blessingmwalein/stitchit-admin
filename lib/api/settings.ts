@@ -19,21 +19,21 @@ export const rolesApi = {
 };
 
 export const companyApi = {
-  get: () => apiFetch<any>("/company"),
-  update: (data: any) => apiFetch<any>("/company", { method: "PATCH", body: data }),
+  get: () => apiFetch<any>("/settings/company"),
+  update: (data: any) => apiFetch<any>("/settings/company", { method: "PATCH", body: data }),
 };
 
 export const settingsApi = {
-  getAll: () => apiFetch<Record<string, any>>("/settings"),
+  getAll: () => apiFetch<Record<string, any>>("/settings/all"),
   set: (key: string, value: any) =>
-    apiFetch("/settings", { method: "PUT", body: { key, value } }),
+    apiFetch(`/settings/${key}`, { method: "PUT", body: value }),
   pricing: () => apiFetch<any>("/settings/pricing"),
   updatePricing: (data: any) =>
     apiFetch("/settings/pricing", { method: "PUT", body: data }),
 };
 
 export const numberingApi = {
-  list: () => apiFetch<any[]>("/numbering"),
-  reset: (docType: string, nextNumber: number) =>
-    apiFetch("/numbering/reset", { method: "POST", body: { docType, nextNumber } }),
+  list: () => apiFetch<any[]>("/settings/sequences"),
+  update: (docType: string, data: { prefix?: string; padLength?: number; yearlyReset?: boolean }) =>
+    apiFetch(`/settings/sequences/${docType}`, { method: "PATCH", body: data }),
 };

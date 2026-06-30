@@ -42,7 +42,7 @@ export function Topbar() {
         </kbd>
       </button>
 
-      <div className="flex items-center gap-1">
+      <div className="ml-auto flex items-center gap-1">
         {/* Theme toggle */}
         <Button
           variant="ghost"

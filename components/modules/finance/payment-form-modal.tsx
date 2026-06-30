@@ -81,6 +81,7 @@ interface PaymentFormModalProps {
     customerId?: string;
     orderId?: string;
     isDeposit?: boolean;
+    amount?: string;
   };
   onSuccess?: () => void;
 }
@@ -113,7 +114,7 @@ export function PaymentFormModal({ open, onOpenChange, prefill, onSuccess }: Pay
       orderId:       prefill?.orderId ?? "",
       cashAccountId: "",
       method:        "CASH",
-      amount:        "",
+      amount:        prefill?.amount ?? "",
       paymentDate:   format(new Date(), "yyyy-MM-dd"),
       reference:     "",
       notes:         "",
@@ -128,7 +129,7 @@ export function PaymentFormModal({ open, onOpenChange, prefill, onSuccess }: Pay
         orderId:       prefill?.orderId ?? "",
         cashAccountId: "",
         method:        "CASH",
-        amount:        "",
+        amount:        prefill?.amount ?? "",
         paymentDate:   format(new Date(), "yyyy-MM-dd"),
         reference:     "",
         notes:         "",

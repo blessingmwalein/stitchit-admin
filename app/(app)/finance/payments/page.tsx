@@ -12,7 +12,6 @@ import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -20,6 +19,7 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { DatePicker } from "@/components/shared/date-picker";
 import { Plus, Search } from "lucide-react";
 import { PaymentFormModal } from "@/components/modules/finance/payment-form-modal";
 
@@ -300,61 +300,72 @@ export default function PaymentsPage() {
       </PageHeader>
 
       {/* Filters */}
-      <div className="px-4 pb-4 flex flex-wrap gap-2 items-end border-b">
-        <div className="flex items-center gap-1.5 bg-background border rounded-md px-2 h-9 flex-1 min-w-48 max-w-64">
-          <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <input
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            placeholder="Search receipt, customer, notes…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <div className="px-4 pb-4 pt-1 flex flex-wrap gap-3 items-end border-b">
+        {/* Search */}
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-0.5">Search</span>
+          <div className="flex items-center gap-1.5 bg-background border rounded-md px-2 h-9 w-56">
+            <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <input
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              placeholder="Receipt, customer, notes…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </div>
 
-        <Select value={typeFilter || "__all__"} onValueChange={(v) => { setTypeFilter(v === "__all__" ? "" : v); setPage(1); }}>
-          <SelectTrigger className="h-9 w-36">
-            <SelectValue placeholder="All types" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all__">All types</SelectItem>
-            <SelectItem value="deposit">Deposits</SelectItem>
-            <SelectItem value="payment">Payments</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-0.5">Type</span>
+          <Select value={typeFilter || "__all__"} onValueChange={(v) => { setTypeFilter(v === "__all__" ? "" : v); setPage(1); }}>
+            <SelectTrigger className="h-9 w-36">
+              <SelectValue placeholder="All types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">All types</SelectItem>
+              <SelectItem value="deposit">Deposits</SelectItem>
+              <SelectItem value="payment">Payments</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-        <Select value={methodFilter || "__all__"} onValueChange={(v) => { setMethodFilter(v === "__all__" ? "" : v); setPage(1); }}>
-          <SelectTrigger className="h-9 w-40">
-            <SelectValue placeholder="All methods" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all__">All methods</SelectItem>
-            <SelectItem value="CASH">Cash</SelectItem>
-            <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
-            <SelectItem value="MOBILE_MONEY">EcoCash / InnBucks</SelectItem>
-            <SelectItem value="PAYNOW">Paynow</SelectItem>
-            <SelectItem value="CHEQUE">Cheque</SelectItem>
-            <SelectItem value="OTHER">Other</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-0.5">Method</span>
+          <Select value={methodFilter || "__all__"} onValueChange={(v) => { setMethodFilter(v === "__all__" ? "" : v); setPage(1); }}>
+            <SelectTrigger className="h-9 w-40">
+              <SelectValue placeholder="All methods" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">All methods</SelectItem>
+              <SelectItem value="CASH">Cash</SelectItem>
+              <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+              <SelectItem value="MOBILE_MONEY">EcoCash / InnBucks</SelectItem>
+              <SelectItem value="PAYNOW">Paynow</SelectItem>
+              <SelectItem value="CHEQUE">Cheque</SelectItem>
+              <SelectItem value="OTHER">Other</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-        <div className="flex items-center gap-1.5">
-          <Input
-            type="date"
-            className="h-9 w-36"
-            value={fromDate}
-            onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
-            placeholder="From"
-            title="From date"
-          />
-          <span className="text-muted-foreground text-xs">—</span>
-          <Input
-            type="date"
-            className="h-9 w-36"
-            value={toDate}
-            onChange={(e) => { setToDate(e.target.value); setPage(1); }}
-            placeholder="To"
-            title="To date"
-          />
+        <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-0.5">From</span>
+            <DatePicker
+              value={fromDate}
+              onChange={(v) => { setFromDate(v); setPage(1); }}
+              placeholder="From date"
+              className="w-38"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-0.5">To</span>
+            <DatePicker
+              value={toDate}
+              onChange={(v) => { setToDate(v); setPage(1); }}
+              placeholder="To date"
+              className="w-38"
+            />
+          </div>
         </div>
 
         {hasFilters && (

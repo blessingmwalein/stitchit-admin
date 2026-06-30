@@ -4,6 +4,21 @@ const SESSION_COOKIE = "st_session";
 
 const isBrowser = typeof window !== "undefined";
 
+function decodeJwtExp(token: string): number | null {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    // atob needs standard base64 (pad with =)
+    const padded = payload.replace(/-/g, "+").replace(/_/g, "/").padEnd(
+      payload.length + ((4 - (payload.length % 4)) % 4), "="
+    );
+    const json = JSON.parse(atob(padded)) as { exp?: number };
+    return typeof json.exp === "number" ? json.exp : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Small token store backed by localStorage. Tokens are only ever read on the
  * client; the `st_session` cookie is a non-httpOnly marker used exclusively by
@@ -17,6 +32,12 @@ export const tokenStore = {
   getRefreshToken(): string | null {
     if (!isBrowser) return null;
     return window.localStorage.getItem(REFRESH_TOKEN_KEY);
+  },
+  /** Returns the access token expiry as a Unix timestamp (seconds), or null. */
+  getExpiresAt(): number | null {
+    const token = this.getAccessToken();
+    if (!token) return null;
+    return decodeJwtExp(token);
   },
   setTokens(accessToken: string, refreshToken: string) {
     if (!isBrowser) return;

@@ -16,12 +16,18 @@ export const invoicesApi = {
 
 export const paymentsApi = {
   ...createCrudApi<Payment>("/payments"),
+  byOrder: (orderId: string) =>
+    apiFetch<any>(`/payments${buildQuery({ orderId, limit: 100 })}`),
+  byCustomer: (customerId: string) =>
+    apiFetch<any>(`/payments${buildQuery({ customerId, limit: 100 })}`),
   allocate: (id: string, invoiceId: string, amount: number) =>
     apiFetch<Payment>(`/payments/${id}/allocate`, { method: "POST", body: { invoiceId, amount } }),
 };
 
 export const expensesApi = {
   ...createCrudApi<Expense>("/expenses"),
+  list: (params?: ListParams & { excludeCategory?: string; fromDate?: string; toDate?: string; category?: string }) =>
+    apiFetch<any>(`/expenses${buildQuery({ excludeCategory: "MATERIALS", ...params })}`),
 };
 
 export const accountsApi = {

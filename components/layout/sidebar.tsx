@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui-store";
 import { useCan } from "@/hooks/use-can";
+import Image from "next/image";
 import {
   LayoutDashboard, Users, FileText, ShoppingBag, Factory, Package,
   Truck, Wallet, BarChart3, Settings, ClipboardList, Bell,
@@ -90,9 +91,33 @@ export function Sidebar() {
         )}
       >
         {/* Brand */}
-        <div className={cn("flex h-14 items-center border-b px-3", sidebarOpen ? "justify-between" : "justify-center")}>
-          {sidebarOpen && (
-            <span className="text-base font-bold tracking-tight">Stitch&apos;t</span>
+        <div className={cn(
+          "flex h-14 items-center border-b px-2 gap-2",
+          sidebarOpen ? "justify-between" : "justify-center"
+        )}>
+          {sidebarOpen ? (
+            <Link href="/dashboard" className="flex items-center gap-2 min-w-0">
+              <Image
+                src="/STICHIT-01.png"
+                alt="Stitch't"
+                width={32}
+                height={32}
+                className="shrink-0 rounded"
+                priority
+              />
+              <span className="font-bold text-sm tracking-tight truncate">Stitch&apos;t</span>
+            </Link>
+          ) : (
+            <Link href="/dashboard" className="flex items-center justify-center">
+              <Image
+                src="/STICHIT-01.png"
+                alt="Stitch't"
+                width={30}
+                height={30}
+                className="rounded"
+                priority
+              />
+            </Link>
           )}
           <Button
             variant="ghost"
