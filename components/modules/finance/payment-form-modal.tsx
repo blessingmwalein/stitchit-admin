@@ -163,14 +163,14 @@ export function PaymentFormModal({ open, onOpenChange, prefill, onSuccess }: Pay
       }
       return paymentsApi.create({
         customerId:  values.customerId,
-        method:      values.method as any,
+        method:      values.method,
         amount:      parseFloat(values.amount),
         paymentDate: values.paymentDate,
         isDeposit:   values.paymentType === "ORDER_DEPOSIT",
         orderId:     values.orderId || undefined,
         reference:   values.reference || undefined,
         notes:       values.notes || undefined,
-      });
+      } as any);
     },
     onSuccess: () => {
       toast.success("Payment recorded");

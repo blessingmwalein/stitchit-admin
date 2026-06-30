@@ -85,7 +85,8 @@ function UsersTab() {
 
 // -- Roles Tab --
 function RolesTab() {
-  const { data: roles = [], isLoading } = useQuery({ queryKey: ["roles"], queryFn: () => rolesApi.list() });
+  const { data: rolesData, isLoading } = useQuery({ queryKey: ["roles"], queryFn: () => rolesApi.list() });
+  const roles: Role[] = Array.isArray(rolesData) ? rolesData : (rolesData as any)?.data ?? [];
   return (
     <div className="grid gap-3 max-w-lg">
       {isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : roles.map((role: Role) => (
@@ -95,9 +96,9 @@ function RolesTab() {
               <div>
                 <p className="font-medium">{role.name}</p>
                 {role.description && <p className="text-xs text-muted-foreground mt-0.5">{role.description}</p>}
-                <p className="text-xs text-muted-foreground mt-1">{role.permissionCount ?? 0} permissions</p>
+                <p className="text-xs text-muted-foreground mt-1">{(role as any).permissionCount ?? role.permissions?.length ?? 0} permissions</p>
               </div>
-              {!role.isSystem && <Button variant="outline" size="sm">Edit</Button>}
+              {!(role as any).isSystem && <Button variant="outline" size="sm">Edit</Button>}
             </div>
           </CardContent>
         </Card>

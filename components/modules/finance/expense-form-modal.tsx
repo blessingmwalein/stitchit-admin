@@ -140,7 +140,7 @@ export function ExpenseFormModal({ open, onOpenChange, expense }: ExpenseFormMod
           description: values.description,
           payee: values.payee,
           category: values.category,
-        });
+        } as any);
       }
       return expensesApi.create({
         date: values.date,
@@ -150,7 +150,7 @@ export function ExpenseFormModal({ open, onOpenChange, expense }: ExpenseFormMod
         category: values.category,
         payee: values.payee || undefined,
         description: values.description || undefined,
-      });
+      } as any);
     },
     onSuccess: () => {
       toast.success(isEdit ? "Expense updated" : "Expense recorded");

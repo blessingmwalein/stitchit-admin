@@ -180,7 +180,7 @@ export function OrderFormModal({ open, onOpenChange, order }: OrderFormModalProp
           designFileUrl: item.designFileUrl || undefined,
         })),
       };
-      return isEdit ? ordersApi.update(order!.id, payload as any) : ordersApi.create(payload);
+      return isEdit ? ordersApi.update(order!.id, payload as any) : ordersApi.create(payload as any);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["orders"] });

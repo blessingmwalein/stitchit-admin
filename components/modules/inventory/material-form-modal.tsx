@@ -81,7 +81,7 @@ export function MaterialFormModal({ open, onOpenChange, material, onCreated }: M
           uom: material.uom ?? "KG",
           color: material.color ?? "",
           reorderLevel: material.reorderLevel != null ? String(material.reorderLevel) : "",
-          reorderQty: material.reorderQty != null ? String(material.reorderQty) : "",
+          reorderQty: (material as any).reorderQty != null ? String((material as any).reorderQty) : "",
         });
       } else {
         form.reset({ sku: "", name: "", categoryId: "", uom: "KG", color: "", reorderLevel: "", reorderQty: "" });

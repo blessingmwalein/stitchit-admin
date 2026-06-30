@@ -34,7 +34,7 @@ const SHAPES: { value: RugShape; label: string }[] = [
 
 const COMPLEXITY_OPTS: { value: Complexity; label: string }[] = [
   { value: "SIMPLE", label: "Simple" },
-  { value: "MODERATE", label: "Moderate" },
+  { value: "MEDIUM", label: "Moderate" },
   { value: "COMPLEX", label: "Complex" },
   { value: "VERY_COMPLEX", label: "Very Complex" },
 ];
@@ -52,7 +52,7 @@ const itemSchema = z.object({
   widthCm: z.string().optional(),
   heightCm: z.string().optional(),
   shape: z.enum(["RECTANGLE", "CIRCLE", "OVAL", "RUNNER", "CUSTOM"]).optional(),
-  complexity: z.enum(["SIMPLE", "MODERATE", "COMPLEX", "VERY_COMPLEX"]).optional(),
+  complexity: z.enum(["SIMPLE", "MEDIUM", "COMPLEX", "VERY_COMPLEX"]).optional(),
   colors: z.string().optional(),
   quantity: z.string().min(1, "Required"),
   unitPrice: z.string().min(1, "Required"),
@@ -75,7 +75,7 @@ const BLANK_ITEM: FormValues["items"][number] = {
   widthCm: "",
   heightCm: "",
   shape: "RECTANGLE",
-  complexity: "MODERATE",
+  complexity: "MEDIUM",
   colors: "",
   quantity: "1",
   unitPrice: "",
@@ -119,7 +119,7 @@ export function QuotationFormModal({ open, onOpenChange, quotation }: QuotationF
           widthCm: String(i.widthCm ?? ""),
           heightCm: String(i.heightCm ?? ""),
           shape: (i.shape as RugShape) ?? "RECTANGLE",
-          complexity: (i.complexity as Complexity) ?? "MODERATE",
+          complexity: (i.complexity as Complexity) ?? "MEDIUM",
           colors: i.colors?.join(", ") ?? "",
           quantity: String(i.quantity),
           unitPrice: String(i.unitPrice),
@@ -181,7 +181,7 @@ export function QuotationFormModal({ open, onOpenChange, quotation }: QuotationF
           };
         }),
       };
-      return isEdit ? quotationsApi.update(quotation!.id, payload) : quotationsApi.create(payload);
+      return isEdit ? quotationsApi.update(quotation!.id, payload as any) : quotationsApi.create(payload as any);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quotations"] });
@@ -340,7 +340,7 @@ export function QuotationFormModal({ open, onOpenChange, quotation }: QuotationF
                         <FormField control={form.control} name={`items.${index}.complexity`} render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-xs">Complexity</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value ?? "MODERATE"}>
+                            <Select onValueChange={field.onChange} value={field.value ?? "MEDIUM"}>
                               <FormControl><SelectTrigger className="w-full"><SelectValue /></SelectTrigger></FormControl>
                               <SelectContent>
                                 {COMPLEXITY_OPTS.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
