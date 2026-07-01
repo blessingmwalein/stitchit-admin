@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Plus, ImagePlus, X, ExternalLink, Loader2 } from "lucide-react";
+import { Trash2, Plus, ImagePlus, X, ExternalLink, Loader2, UserPlus, ChevronDown } from "lucide-react";
 import { uploadDesignImage } from "@/lib/supabase";
 
 const SHAPES: { value: RugShape; label: string }[] = [
@@ -63,6 +63,7 @@ const itemSchema = z.object({
 const schema = z.object({
   customerId: z.string().min(1, "Customer is required"),
   priority: z.enum(["LOW", "NORMAL", "HIGH", "URGENT"]).default("NORMAL"),
+  orderDate: z.string().optional(),
   promisedDate: z.string().optional(),
   depositRequired: z.string().default("0"),
   deliveryAddress: z.string().optional(),
@@ -91,10 +92,28 @@ interface OrderFormModalProps {
   order?: Order;
 }
 
+const quickCustomerSchema = z.object({
+  type: z.enum(["INDIVIDUAL", "CORPORATE"]),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  companyName: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().email("Invalid email").optional().or(z.literal("")),
+}).superRefine((v, ctx) => {
+  if (v.type === "INDIVIDUAL" && !v.firstName) {
+    ctx.addIssue({ code: "custom", path: ["firstName"], message: "First name required" });
+  }
+  if (v.type === "CORPORATE" && !v.companyName) {
+    ctx.addIssue({ code: "custom", path: ["companyName"], message: "Company name required" });
+  }
+});
+type QuickCustomerValues = z.infer<typeof quickCustomerSchema>;
+
 export function OrderFormModal({ open, onOpenChange, order }: OrderFormModalProps) {
   const qc = useQueryClient();
   const isEdit = !!order;
   const [uploading, setUploading] = React.useState<Record<number, boolean>>({});
+  const [showQuickCreate, setShowQuickCreate] = React.useState(false);
   const fileInputRefs = React.useRef<Record<number, HTMLInputElement | null>>({});
 
   const { data: customersData } = useQuery({
@@ -106,6 +125,7 @@ export function OrderFormModal({ open, onOpenChange, order }: OrderFormModalProp
   const buildDefaults = (): FormValues => ({
     customerId: order?.customerId ?? "",
     priority: (order?.priority as OrderPriority) ?? "NORMAL",
+    orderDate: "",
     promisedDate: order?.promisedDate ? order.promisedDate.substring(0, 10) : "",
     depositRequired: order ? String(order.depositRequired) : "0",
     deliveryAddress: "",
@@ -134,9 +154,44 @@ export function OrderFormModal({ open, onOpenChange, order }: OrderFormModalProp
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "items" });
 
   React.useEffect(() => {
-    if (open) form.reset(buildDefaults());
+    if (open) {
+      form.reset(buildDefaults());
+      setShowQuickCreate(false);
+      quickForm.reset({ type: "INDIVIDUAL", firstName: "", lastName: "", companyName: "", phone: "", email: "" });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, order]);
+
+  const quickForm = useForm<QuickCustomerValues>({
+    resolver: zodResolver(quickCustomerSchema),
+    defaultValues: { type: "INDIVIDUAL", firstName: "", lastName: "", companyName: "", phone: "", email: "" },
+  });
+
+  const quickType = quickForm.watch("type");
+
+  const quickCreateMutation = useMutation({
+    mutationFn: (values: QuickCustomerValues) =>
+      customersApi.create({
+        type: values.type,
+        firstName: values.firstName || undefined,
+        lastName: values.lastName || undefined,
+        companyName: values.companyName || undefined,
+        phone: values.phone || undefined,
+        email: values.email || undefined,
+      } as any),
+    onSuccess: (created: any) => {
+      qc.invalidateQueries({ queryKey: ["customers-dropdown"] });
+      qc.invalidateQueries({ queryKey: ["customers"] });
+      form.setValue("customerId", created.id, { shouldValidate: true });
+      setShowQuickCreate(false);
+      quickForm.reset({ type: "INDIVIDUAL", firstName: "", lastName: "", companyName: "", phone: "", email: "" });
+      const name = created.type === "CORPORATE"
+        ? created.companyName
+        : [created.firstName, created.lastName].filter(Boolean).join(" ");
+      toast.success(`Customer "${name}" created and selected`);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to create customer"),
+  });
 
   const watchedItems = form.watch("items");
 
@@ -162,6 +217,7 @@ export function OrderFormModal({ open, onOpenChange, order }: OrderFormModalProp
       const payload = {
         customerId: values.customerId,
         priority: values.priority,
+        createdAt: values.orderDate || undefined,
         promisedDate: values.promisedDate || undefined,
         depositRequired: parseFloat(values.depositRequired) || 0,
         deliveryAddress: values.deliveryAddress || undefined,
@@ -210,8 +266,21 @@ export function OrderFormModal({ open, onOpenChange, order }: OrderFormModalProp
                 name="customerId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Customer <span className="text-destructive">*</span></FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Customer <span className="text-destructive">*</span></FormLabel>
+                      <button
+                        type="button"
+                        onClick={() => setShowQuickCreate((v) => !v)}
+                        className="flex items-center gap-1 text-xs text-orange-600 hover:text-orange-700 font-medium"
+                      >
+                        {showQuickCreate ? (
+                          <><ChevronDown className="h-3 w-3" />Cancel</>
+                        ) : (
+                          <><UserPlus className="h-3 w-3" />New customer</>
+                        )}
+                      </button>
+                    </div>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={showQuickCreate}>
                       <FormControl>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select customer…" />
@@ -232,8 +301,101 @@ export function OrderFormModal({ open, onOpenChange, order }: OrderFormModalProp
                 )}
               />
 
-              {/* Priority + Date + Deposit */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {/* Quick create customer inline panel */}
+              {showQuickCreate && (
+                <div className="rounded-xl border border-orange-200 bg-orange-50/50 p-4 space-y-3">
+                  <p className="text-xs font-semibold text-orange-700 uppercase tracking-wide">New Customer</p>
+
+                  {/* Type toggle */}
+                  <div className="flex gap-2">
+                    {(["INDIVIDUAL", "CORPORATE"] as const).map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => quickForm.setValue("type", t)}
+                        className={`flex-1 rounded-lg border py-1.5 text-xs font-medium transition-colors ${
+                          quickType === t
+                            ? "border-orange-500 bg-orange-500 text-white"
+                            : "border-border bg-background text-muted-foreground hover:border-orange-300"
+                        }`}
+                      >
+                        {t === "INDIVIDUAL" ? "Individual" : "Company"}
+                      </button>
+                    ))}
+                  </div>
+
+                  {quickType === "INDIVIDUAL" ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-medium mb-1 block">First Name *</label>
+                        <Input
+                          placeholder="First name"
+                          {...quickForm.register("firstName")}
+                          className="h-8 text-sm"
+                        />
+                        {quickForm.formState.errors.firstName && (
+                          <p className="text-xs text-destructive mt-1">{quickForm.formState.errors.firstName.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium mb-1 block">Last Name</label>
+                        <Input placeholder="Last name" {...quickForm.register("lastName")} className="h-8 text-sm" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="text-xs font-medium mb-1 block">Company Name *</label>
+                      <Input
+                        placeholder="Company name"
+                        {...quickForm.register("companyName")}
+                        className="h-8 text-sm"
+                      />
+                      {quickForm.formState.errors.companyName && (
+                        <p className="text-xs text-destructive mt-1">{quickForm.formState.errors.companyName.message}</p>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-medium mb-1 block">Phone</label>
+                      <Input placeholder="+263…" {...quickForm.register("phone")} className="h-8 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium mb-1 block">Email</label>
+                      <Input type="email" placeholder="email@example.com" {...quickForm.register("email")} className="h-8 text-sm" />
+                      {quickForm.formState.errors.email && (
+                        <p className="text-xs text-destructive mt-1">{quickForm.formState.errors.email.message}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => { setShowQuickCreate(false); quickForm.reset(); }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="h-7 text-xs bg-orange-500 hover:bg-orange-600 text-white"
+                      disabled={quickCreateMutation.isPending}
+                      onClick={quickForm.handleSubmit((v) => quickCreateMutation.mutate(v))}
+                    >
+                      {quickCreateMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+                      Create & Select
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Priority + Order Date + Promised Date + Deposit */}
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <FormField
                   control={form.control}
                   name="priority"
@@ -250,6 +412,20 @@ export function OrderFormModal({ open, onOpenChange, order }: OrderFormModalProp
                           ))}
                         </SelectContent>
                       </Select>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="orderDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Order Date
+                        <span className="ml-1 text-[10px] text-muted-foreground font-normal">(optional)</span>
+                      </FormLabel>
+                      <FormControl><Input type="date" {...field} /></FormControl>
+                      <p className="text-[10px] text-muted-foreground">Leave blank to use today</p>
                     </FormItem>
                   )}
                 />
