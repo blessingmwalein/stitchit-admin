@@ -21,12 +21,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const UOM_OPTIONS = [
-  { value: "KG", label: "Kilogram (KG)" },
-  { value: "MTR", label: "Metre (MTR)" },
-  { value: "PCS", label: "Pieces (PCS)" },
-  { value: "ROLL", label: "Roll (ROLL)" },
-  { value: "LTR", label: "Litre (LTR)" },
-  { value: "OTHER", label: "Other" },
+  { value: "G",     label: "Gram (g)" },
+  { value: "KG",    label: "Kilogram (kg)" },
+  { value: "M",     label: "Metre (m)" },
+  { value: "SQM",   label: "Square Metre (sqm)" },
+  { value: "ROLL",  label: "Roll" },
+  { value: "CONE",  label: "Cone" },
+  { value: "LITRE", label: "Litre (L)" },
+  { value: "PIECE", label: "Piece / Each" },
 ];
 
 const schema = z.object({
