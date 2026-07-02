@@ -267,6 +267,25 @@ export default function PaymentsPage() {
     } as any),
   });
 
+  // Stats query — all records for the active filters (no pagination)
+  const { data: statsData } = useQuery({
+    queryKey: ["payments-stats", { fromDate, toDate, typeFilter, methodFilter }],
+    queryFn: () => paymentsApi.list({
+      page: 1,
+      limit: 5000,
+      ...(fromDate && { fromDate }),
+      ...(toDate && { toDate }),
+      ...(typeFilter === "deposit" && { isDeposit: true }),
+      ...(typeFilter === "payment" && { isDeposit: false }),
+      ...(methodFilter && { method: methodFilter }),
+    } as any),
+  });
+
+  const statsRows: PaymentRow[] = (statsData as any)?.data ?? [];
+  const statsTotalAmount = statsRows.reduce((s, r) => s + Number(r.amount), 0);
+  const statsDepositAmt  = statsRows.filter((r) => r.isDeposit).reduce((s, r) => s + Number(r.amount), 0);
+  const statsBalanceAmt  = statsRows.filter((r) => !r.isDeposit).reduce((s, r) => s + Number(r.amount), 0);
+
   const total = (data as any)?.total ?? (data as any)?.meta?.total ?? 0;
   let rows: PaymentRow[] = (data as any)?.data ?? [];
 
@@ -298,6 +317,25 @@ export default function PaymentsPage() {
           <Plus className="mr-1 h-4 w-4" />Record payment
         </Button>
       </PageHeader>
+
+      {/* Stats cards */}
+      <div className="grid grid-cols-3 divide-x border-b bg-card">
+        <div className="px-6 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Total Received</p>
+          <p className="text-2xl font-normal tabular-nums mt-1">${statsTotalAmount.toFixed(2)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{statsRows.length} payment{statsRows.length !== 1 ? "s" : ""}</p>
+        </div>
+        <div className="px-6 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Deposits</p>
+          <p className="text-2xl font-normal tabular-nums mt-1 text-teal-600">${statsDepositAmt.toFixed(2)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{statsRows.filter((r) => r.isDeposit).length} deposits</p>
+        </div>
+        <div className="px-6 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Balance Payments</p>
+          <p className="text-2xl font-normal tabular-nums mt-1 text-blue-600">${statsBalanceAmt.toFixed(2)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{statsRows.filter((r) => !r.isDeposit).length} payments</p>
+        </div>
+      </div>
 
       {/* Filters */}
       <div className="px-4 pb-4 pt-1 flex flex-wrap gap-3 items-end border-b">

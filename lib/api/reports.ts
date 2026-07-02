@@ -1,7 +1,8 @@
-import { apiFetch } from "./client";
+import { apiFetch, buildQuery } from "./client";
 
 export const reportsApi = {
-  dashboard: () => apiFetch<any>("/reports/dashboard"),
+  dashboard: (params?: { fromDate?: string; toDate?: string }) =>
+    apiFetch<any>(`/reports/dashboard${params ? buildQuery(params as any) : ""}`),
 
   trialBalance: (from: string, to: string) =>
     apiFetch<any>(`/reports/trial-balance?from=${from}&to=${to}`),

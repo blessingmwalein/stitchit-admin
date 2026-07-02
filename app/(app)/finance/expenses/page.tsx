@@ -145,6 +145,26 @@ export default function ExpensesPage() {
     },
   ];
 
+  // Stats — all filtered records for aggregate
+  const { data: statsData } = useQuery({
+    queryKey: ["expenses-stats", { fromDate, toDate, category }],
+    queryFn: () =>
+      expensesApi.list({ page: 1, pageSize: 5000, ...(fromDate && { fromDate }), ...(toDate && { toDate }), ...(category && { category }) }),
+  });
+
+  const statsRows: Expense[] = (statsData as any)?.data ?? [];
+  const statsTotal = statsRows.reduce((s, r) => s + Number((r as any).amount ?? (r as any).amountUsd ?? 0), 0);
+  const statsCount = statsRows.length;
+  const statsAvg   = statsCount > 0 ? statsTotal / statsCount : 0;
+
+  // Top category
+  const catMap: Record<string, number> = {};
+  for (const r of statsRows) {
+    const cat = (r.category as string) ?? "OTHER";
+    catMap[cat] = (catMap[cat] ?? 0) + Number((r as any).amount ?? 0);
+  }
+  const topCat = Object.entries(catMap).sort((a, b) => b[1] - a[1])[0];
+
   const total = (data as any)?.meta?.total ?? (data as any)?.total ?? 0;
   const rows: Expense[] = (data as any)?.data ?? [];
 
@@ -164,6 +184,27 @@ export default function ExpensesPage() {
           <Plus className="mr-1 h-4 w-4" />New expense
         </Button>
       </PageHeader>
+
+      {/* Stats cards */}
+      <div className="grid grid-cols-3 divide-x border-b bg-card">
+        <div className="px-6 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Total Expenses</p>
+          <p className="text-2xl font-normal tabular-nums mt-1 text-red-600">${statsTotal.toFixed(2)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{statsCount} entr{statsCount !== 1 ? "ies" : "y"}</p>
+        </div>
+        <div className="px-6 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Average Expense</p>
+          <p className="text-2xl font-normal tabular-nums mt-1">${statsAvg.toFixed(2)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">per entry</p>
+        </div>
+        <div className="px-6 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Top Category</p>
+          <p className="text-2xl font-normal tabular-nums mt-1">${(topCat?.[1] ?? 0).toFixed(2)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {topCat ? topCat[0].replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase()) : "—"}
+          </p>
+        </div>
+      </div>
 
       {/* Filters */}
       <div className="px-4 pb-4 pt-1 flex flex-wrap gap-3 items-end border-b">

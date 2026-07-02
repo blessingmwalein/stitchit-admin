@@ -146,6 +146,25 @@ export default function JournalsPage() {
       } as any),
   });
 
+  // Stats — aggregate from all filtered journals
+  const { data: statsData } = useQuery({
+    queryKey: ["journals-stats", { fromDate, toDate, status, source }],
+    queryFn: () =>
+      journalsApi.list({
+        page: 1,
+        limit: 5000,
+        ...(fromDate && { fromDate }),
+        ...(toDate   && { toDate }),
+        ...(status   && { status }),
+        ...(source   && { sourceType: source }),
+      } as any),
+  });
+
+  const statsRows: JournalEntry[] = (statsData as any)?.data ?? [];
+  const statsTotalDebit  = statsRows.reduce((s, r) => s + Number(r.totalDebit  ?? 0), 0);
+  const statsTotalCredit = statsRows.reduce((s, r) => s + Number(r.totalCredit ?? 0), 0);
+  const statsBalance     = statsTotalDebit - statsTotalCredit;
+
   const total = (data as any)?.total ?? (data as any)?.meta?.total ?? 0;
 
   function clearFilters() {
@@ -181,6 +200,34 @@ export default function JournalsPage() {
           Manual entry
         </Button>
       </PageHeader>
+
+      {/* Stats cards */}
+      <div className="grid grid-cols-4 divide-x border-b bg-card">
+        <div className="px-6 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Entries</p>
+          <p className="text-2xl font-normal tabular-nums mt-1">{statsRows.length}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">journal lines</p>
+        </div>
+        <div className="px-6 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Total Debits</p>
+          <p className="text-2xl font-normal tabular-nums mt-1 text-emerald-700">${statsTotalDebit.toFixed(2)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">posted entries</p>
+        </div>
+        <div className="px-6 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Total Credits</p>
+          <p className="text-2xl font-normal tabular-nums mt-1 text-blue-700">${statsTotalCredit.toFixed(2)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">posted entries</p>
+        </div>
+        <div className="px-6 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Balance</p>
+          <p className={`text-2xl font-normal tabular-nums mt-1 ${Math.abs(statsBalance) < 0.01 ? "text-emerald-600" : "text-red-500"}`}>
+            ${Math.abs(statsBalance).toFixed(2)}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {Math.abs(statsBalance) < 0.01 ? "balanced" : statsBalance > 0 ? "debit excess" : "credit excess"}
+          </p>
+        </div>
+      </div>
 
       {/* Filters */}
       <div className="px-4 pb-4 pt-1 flex flex-wrap gap-3 items-end border-b">

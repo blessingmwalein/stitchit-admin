@@ -8,7 +8,7 @@ import { useUiStore } from "@/stores/ui-store";
 import { useCan } from "@/hooks/use-can";
 import Image from "next/image";
 import {
-  LayoutDashboard, Users, FileText, ShoppingBag, Factory, Package,
+  LayoutDashboard, Users, ShoppingBag, Factory, Package,
   Truck, Wallet, BarChart3, Settings, ClipboardList, Bell,
   ChevronLeft, ChevronRight, MessageSquare,
 } from "lucide-react";
@@ -32,10 +32,6 @@ const NAV: NavItem[] = [
       { label: "Leads", href: "/crm/leads" },
       { label: "Customers", href: "/crm/customers" },
     ],
-  },
-  {
-    label: "Quotations", href: "/quotations", icon: FileText,
-    permission: "quotations.read",
   },
   {
     label: "Orders", href: "/orders", icon: ShoppingBag,

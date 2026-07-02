@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DollarSign, ShoppingBag, Factory, TrendingUp,
-  Clock, RefreshCw, Wallet, Package,
+  RefreshCw, Wallet, Package,
   ArrowRight, CreditCard, ReceiptText, Coins,
 } from "lucide-react";
 import {
@@ -19,24 +19,72 @@ import {
   Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+// ── Period presets ─────────────────────────────────────────────────────────────
+
+type PeriodKey = "today" | "week" | "month" | "3mo" | "12mo" | "year";
+
+const PERIODS: { key: PeriodKey; label: string }[] = [
+  { key: "today",  label: "Today" },
+  { key: "week",   label: "This Week" },
+  { key: "month",  label: "This Month" },
+  { key: "3mo",    label: "Last 3 Months" },
+  { key: "12mo",   label: "Last 12 Months" },
+  { key: "year",   label: "This Year" },
+];
+
+function getPeriodDates(key: PeriodKey): { fromDate: string; toDate: string; label: string } {
+  const now = new Date();
+  const fmt = (d: Date) => d.toISOString().split("T")[0];
+  const today = fmt(now);
+  switch (key) {
+    case "today":
+      return { fromDate: today, toDate: today, label: "Today" };
+    case "week": {
+      const start = new Date(now);
+      const dow = now.getDay();
+      start.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+      return { fromDate: fmt(start), toDate: today, label: "This Week" };
+    }
+    case "month": {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      return {
+        fromDate: fmt(start), toDate: today,
+        label: now.toLocaleString("en-US", { month: "long", year: "numeric" }),
+      };
+    }
+    case "3mo": {
+      const start = new Date(now);
+      start.setMonth(start.getMonth() - 3);
+      return { fromDate: fmt(start), toDate: today, label: "Last 3 Months" };
+    }
+    case "12mo": {
+      const start = new Date(now);
+      start.setFullYear(start.getFullYear() - 1);
+      return { fromDate: fmt(start), toDate: today, label: "Last 12 Months" };
+    }
+    case "year":
+      return { fromDate: `${now.getFullYear()}-01-01`, toDate: today, label: String(now.getFullYear()) };
+  }
+}
+
+// ── Pipeline (open orders only — no DELIVERED/CANCELLED) ───────────────────────
 
 const PIPELINE = [
-  { status: "AWAITING_DEPOSIT", label: "Awaiting Deposit", color: "#f59e0b" },
-  { status: "DEPOSIT_PAID",     label: "Deposit Paid",     color: "#14b8a6" },
-  { status: "IN_PRODUCTION",   label: "In Production",    color: "#6366f1" },
-  { status: "QUALITY_CHECK",   label: "Quality Check",    color: "#8b5cf6" },
+  { status: "DRAFT",            label: "Draft",             color: "#94a3b8" },
+  { status: "AWAITING_DEPOSIT", label: "Awaiting Deposit",  color: "#f59e0b" },
+  { status: "DEPOSIT_PAID",     label: "Deposit Paid",      color: "#14b8a6" },
+  { status: "IN_PRODUCTION",    label: "In Production",     color: "#6366f1" },
+  { status: "QUALITY_CHECK",    label: "Quality Check",     color: "#8b5cf6" },
   { status: "READY",            label: "Ready",             color: "#10b981" },
-  { status: "DELIVERED",        label: "Delivered",         color: "#22c55e" },
 ];
 
 const QUICK_LINKS = [
-  { href: "/orders",              label: "Orders",      icon: ShoppingBag },
-  { href: "/finance/payments",    label: "Payments",    icon: Wallet },
-  { href: "/production",          label: "Production",  icon: Factory },
-  { href: "/inventory",           label: "Inventory",   icon: Package },
-  { href: "/finance/expenses",    label: "Expenses",    icon: CreditCard },
-  { href: "/finance/journals",    label: "Journals",    icon: ReceiptText },
+  { href: "/orders",           label: "Orders",     icon: ShoppingBag },
+  { href: "/finance/payments", label: "Payments",   icon: Wallet },
+  { href: "/production",       label: "Production", icon: Factory },
+  { href: "/inventory",        label: "Inventory",  icon: Package },
+  { href: "/finance/expenses", label: "Expenses",   icon: CreditCard },
+  { href: "/finance/journals", label: "Journals",   icon: ReceiptText },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -51,10 +99,6 @@ function todayLabel() {
   return new Date().toLocaleDateString("en-US", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
-}
-
-function monthLabel() {
-  return new Date().toLocaleString("en-US", { month: "long", year: "numeric" });
 }
 
 function shortDate(iso: string | undefined | null) {
@@ -83,9 +127,12 @@ function ChartTooltip({ active, payload, label }: any) {
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const [period, setPeriod] = React.useState<PeriodKey>("month");
+  const { fromDate, toDate, label: periodLabel } = getPeriodDates(period);
+
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["dashboard"],
-    queryFn: () => reportsApi.dashboard(),
+    queryKey: ["dashboard", fromDate, toDate],
+    queryFn: () => reportsApi.dashboard({ fromDate, toDate }),
     refetchInterval: 60_000,
   });
 
@@ -98,20 +145,42 @@ export default function DashboardPage() {
   const chartData: { month: string; income: number; expenses: number }[] = kpis.revenueChart ?? [];
   const ordersByStatus: { status: string; count: number }[] = kpis.ordersByStatus ?? [];
   const recentOrders: any[] = (recentOrdersData as any)?.data ?? [];
-  const pipelineMax = Math.max(1, ...ordersByStatus.map((s) => s.count));
+  const pipelineMax = Math.max(1, ...PIPELINE.map(({ status }) => {
+    const found = ordersByStatus.find((s) => s.status === status);
+    return found?.count ?? 0;
+  }));
 
   return (
     <div className="flex flex-col min-h-full bg-muted/20">
 
       {/* ── Header ───────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-6 py-5 border-b bg-card">
+      <div className="flex items-center justify-between px-6 py-4 border-b bg-card">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Overview</h1>
           <p className="text-sm text-muted-foreground mt-0.5">{todayLabel()}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
-          <RefreshCw className="h-3.5 w-3.5 mr-1.5" />Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <RefreshCw className="h-3.5 w-3.5 mr-1.5" />Refresh
+          </Button>
+        </div>
+      </div>
+
+      {/* ── Period filter ────────────────────────────────────────── */}
+      <div className="flex items-center gap-1 px-6 py-3 border-b bg-card overflow-x-auto">
+        {PERIODS.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setPeriod(key)}
+            className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+              period === key
+                ? "bg-orange-500 text-white"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       <div className="flex-1 p-6 space-y-5">
@@ -119,7 +188,7 @@ export default function DashboardPage() {
         {/* ── Row 1 · 5 KPI Cards ─────────────────────────────────── */}
         <div className="grid gap-px grid-cols-2 lg:grid-cols-5 bg-border rounded-2xl overflow-hidden ring-1 ring-border">
           <KpiCard
-            title={`Income · ${monthLabel()}`}
+            title={`Income · ${periodLabel}`}
             value={usd(kpis.monthlyIncome)}
             sub="Deposits + balances received"
             icon={<DollarSign className="h-4 w-4" />}
@@ -152,9 +221,9 @@ export default function DashboardPage() {
             className="rounded-none"
           />
           <KpiCard
-            title={`Expenses · ${monthLabel()}`}
+            title={`Expenses · ${periodLabel}`}
             value={usd(kpis.monthlyExpenses)}
-            sub="Total expenses this month"
+            sub="Total expenses this period"
             icon={<CreditCard className="h-4 w-4" />}
             accent="red" loading={isLoading}
             className="rounded-none"
@@ -173,7 +242,7 @@ export default function DashboardPage() {
               </div>
               <div className="text-right">
                 <p className="text-2xl font-normal tabular-nums">{usd(kpis.monthlyIncome)}</p>
-                <p className="text-xs text-muted-foreground">this month</p>
+                <p className="text-xs text-muted-foreground">{periodLabel}</p>
               </div>
             </div>
 
@@ -213,10 +282,7 @@ export default function DashboardPage() {
                     stroke="#ef4444" strokeWidth={2} fill="url(#gExpenses)"
                     dot={false} activeDot={{ r: 4, fill: "#ef4444", strokeWidth: 0 }}
                   />
-                  <Legend
-                    wrapperStyle={{ fontSize: 11, paddingTop: 12 }}
-                    iconType="circle" iconSize={8}
-                  />
+                  <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} iconType="circle" iconSize={8} />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -225,7 +291,7 @@ export default function DashboardPage() {
           {/* Orders pipeline */}
           <div className="bg-card rounded-2xl p-5">
             <p className="text-sm font-semibold mb-0.5">Orders Pipeline</p>
-            <p className="text-xs text-muted-foreground mb-4">Live order stages</p>
+            <p className="text-xs text-muted-foreground mb-4">Open order stages</p>
             <div className="space-y-4">
               {isLoading
                 ? Array.from({ length: 6 }).map((_, i) => (
@@ -247,7 +313,7 @@ export default function DashboardPage() {
                         <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                           <div
                             className="h-full rounded-full transition-all duration-700"
-                            style={{ width: `${Math.max(pct, count > 0 ? 6 : 0)}%`, backgroundColor: color }}
+                            style={{ width: `${Math.max(pct, count > 0 ? 4 : 0)}%`, backgroundColor: color }}
                           />
                         </div>
                       </div>
@@ -293,7 +359,7 @@ export default function DashboardPage() {
               <div className="divide-y">
                 {recentOrders.map((order: any) => {
                   const cname = [order.customer?.firstName, order.customer?.lastName]
-                    .filter(Boolean).join(" ") || "—";
+                    .filter(Boolean).join(" ") || order.customer?.companyName || "—";
                   const rugName = order.items?.[0]?.rugName || order.rugName || "Custom Rug";
                   return (
                     <Link
