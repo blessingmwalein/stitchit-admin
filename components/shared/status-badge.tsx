@@ -41,6 +41,10 @@ const STATUS_COLORS: Record<string, string> = {
   PAID: "bg-green-100 text-green-700",
   OVERDUE: "bg-red-100 text-red-700",
   VOID: "bg-slate-100 text-slate-700 line-through",
+  // Finished products
+  AVAILABLE: "bg-emerald-100 text-emerald-700",
+  RESERVED: "bg-amber-100 text-amber-700",
+  SOLD: "bg-slate-100 text-slate-700",
 };
 
 interface StatusBadgeProps {

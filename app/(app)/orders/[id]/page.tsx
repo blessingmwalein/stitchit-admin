@@ -9,6 +9,8 @@ import { format } from "date-fns";
 import { ordersApi } from "@/lib/api/sales";
 import { paymentsApi } from "@/lib/api/finance";
 import { companyApi } from "@/lib/api/settings";
+import { productionApi } from "@/lib/api/production";
+import { stageLabel } from "@/lib/types/production";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,7 +27,7 @@ import {
   Download, Trash2, MoreVertical, ZoomIn, ZoomOut,
   RotateCcw, RotateCw, FlipHorizontal, FlipVertical,
   Maximize2, RefreshCw, Phone, Mail, MapPin,
-  ChevronDown, MessageCircle, Paperclip,
+  ChevronDown, MessageCircle, Paperclip, Factory, ArrowRight,
 } from "lucide-react";
 import { PaymentFormModal } from "@/components/modules/finance/payment-form-modal";
 import { cn } from "@/lib/utils";
@@ -46,7 +48,7 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
 };
 
 const PRIORITY_COLORS: Record<string, string> = {
-  URGENT: "bg-red-100 text-red-700 border-red-200",
+  RUSH:   "bg-red-100 text-red-700 border-red-200",
   HIGH:   "bg-amber-100 text-amber-700 border-amber-200",
   NORMAL: "bg-blue-100 text-blue-700 border-blue-200",
   LOW:    "bg-slate-100 text-slate-600 border-slate-200",
@@ -56,6 +58,8 @@ const STATUS_ORDER = [
   "DRAFT", "QUOTED", "AWAITING_DEPOSIT", "DEPOSIT_PAID",
   "IN_PRODUCTION", "QUALITY_CHECK", "READY", "DELIVERED", "CLOSED",
 ];
+
+const HAS_PRODUCTION_STATUSES = ["IN_PRODUCTION", "QUALITY_CHECK", "READY", "DELIVERED", "CLOSED"];
 
 // ─── Image Lightbox ───────────────────────────────────────────────────────────
 
@@ -229,6 +233,15 @@ export default function OrderDetailPage() {
     queryFn: () => ordersApi.attachments(id),
     enabled: !!order,
   });
+
+  const showProductionTab = !!order && HAS_PRODUCTION_STATUSES.includes(order.status);
+
+  const { data: productionJobsResult } = useQuery({
+    queryKey: ["order-production-jobs", id],
+    queryFn: () => productionApi.list({ orderId: id, pageSize: 50 } as any),
+    enabled: showProductionTab,
+  });
+  const productionJobs: any[] = (productionJobsResult as any)?.data ?? [];
 
   const { data: company } = useQuery({
     queryKey: ["company"],
@@ -794,6 +807,9 @@ export default function OrderDetailPage() {
                 {[
                   { value: "overview",  label: "Overview" },
                   { value: "payments",  label: `Payments${payments.length > 0 ? ` (${payments.length})` : ""}` },
+                  ...(showProductionTab
+                    ? [{ value: "production", label: `Production${productionJobs.length > 0 ? ` (${productionJobs.length})` : ""}` }]
+                    : []),
                   { value: "history",   label: "History" },
                   { value: "files",     label: `Files${attachList.length > 0 ? ` (${attachList.length})` : ""}` },
                   { value: "notes",     label: "Notes" },
@@ -1012,6 +1028,44 @@ export default function OrderDetailPage() {
                   </table>
                 </div>
               </TabsContent>
+
+              {/* ── Production ── */}
+              {showProductionTab && (
+                <TabsContent value="production" className="space-y-3">
+                  {productionJobs.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-10">
+                      Production job not created yet
+                    </p>
+                  ) : (
+                    productionJobs.map((job: any) => {
+                      const stages: any[] = job.stages ?? [];
+                      const completedCount = stages.filter((s) => s.status === "COMPLETED").length;
+                      const progress = stages.length > 0 ? Math.round((completedCount / stages.length) * 100) : 0;
+                      return (
+                        <Link
+                          key={job.id}
+                          href={`/production/jobs/${job.id}`}
+                          className="flex items-center gap-4 p-4 rounded-xl border bg-card hover:border-primary transition-colors"
+                        >
+                          <div className="h-10 w-10 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
+                            <Factory className="h-5 w-5 text-indigo-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="font-semibold text-sm">{job.jobNumber}</p>
+                              <StatusBadge status={job.status} />
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              Current stage: {job.currentStage ? stageLabel(job.currentStage) : "—"} · {progress}% complete
+                            </p>
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                        </Link>
+                      );
+                    })
+                  )}
+                </TabsContent>
+              )}
 
               {/* ── History ── */}
               <TabsContent value="history">

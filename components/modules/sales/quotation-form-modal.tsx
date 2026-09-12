@@ -26,9 +26,11 @@ import { Trash2, Plus } from "lucide-react";
 
 const SHAPES: { value: RugShape; label: string }[] = [
   { value: "RECTANGLE", label: "Rectangle" },
+  { value: "SQUARE", label: "Square" },
   { value: "CIRCLE", label: "Circle" },
   { value: "OVAL", label: "Oval" },
   { value: "RUNNER", label: "Runner" },
+  { value: "IRREGULAR", label: "Irregular" },
   { value: "CUSTOM", label: "Custom" },
 ];
 
@@ -51,7 +53,7 @@ const itemSchema = z.object({
   rugName: z.string().optional(),
   widthCm: z.string().optional(),
   heightCm: z.string().optional(),
-  shape: z.enum(["RECTANGLE", "CIRCLE", "OVAL", "RUNNER", "CUSTOM"]).optional(),
+  shape: z.enum(["RECTANGLE", "SQUARE", "CIRCLE", "OVAL", "RUNNER", "IRREGULAR", "CUSTOM"]).optional(),
   complexity: z.enum(["SIMPLE", "MEDIUM", "COMPLEX", "VERY_COMPLEX"]).optional(),
   colors: z.string().optional(),
   quantity: z.string().min(1, "Required"),

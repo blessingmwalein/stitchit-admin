@@ -7,9 +7,11 @@ export type QuotationStatus =
 
 export type RugShape =
   | "RECTANGLE"
+  | "SQUARE"
   | "CIRCLE"
   | "OVAL"
   | "RUNNER"
+  | "IRREGULAR"
   | "CUSTOM";
 
 export type Complexity = "SIMPLE" | "MEDIUM" | "COMPLEX" | "VERY_COMPLEX";
@@ -61,7 +63,7 @@ export type OrderStatus =
   | "CLOSED"
   | "CANCELLED";
 
-export type OrderPriority = "LOW" | "NORMAL" | "HIGH" | "URGENT";
+export type OrderPriority = "LOW" | "NORMAL" | "HIGH" | "RUSH";
 
 export interface OrderItem {
   id: string;

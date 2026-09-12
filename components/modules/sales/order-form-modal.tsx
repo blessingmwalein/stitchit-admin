@@ -27,9 +27,11 @@ import { uploadDesignImage } from "@/lib/supabase";
 
 const SHAPES: { value: RugShape; label: string }[] = [
   { value: "RECTANGLE", label: "Rectangle" },
+  { value: "SQUARE", label: "Square" },
   { value: "CIRCLE", label: "Circle" },
   { value: "OVAL", label: "Oval" },
   { value: "RUNNER", label: "Runner" },
+  { value: "IRREGULAR", label: "Irregular" },
   { value: "CUSTOM", label: "Custom" },
 ];
 
@@ -44,7 +46,7 @@ const PRIORITIES: { value: OrderPriority; label: string }[] = [
   { value: "LOW", label: "Low" },
   { value: "NORMAL", label: "Normal" },
   { value: "HIGH", label: "High" },
-  { value: "URGENT", label: "Urgent" },
+  { value: "RUSH", label: "Rush" },
 ];
 
 const itemSchema = z.object({
@@ -52,7 +54,7 @@ const itemSchema = z.object({
   description: z.string().optional(),
   widthCm: z.string().min(1, "Required"),
   heightCm: z.string().min(1, "Required"),
-  shape: z.enum(["RECTANGLE", "CIRCLE", "OVAL", "RUNNER", "CUSTOM"]).optional(),
+  shape: z.enum(["RECTANGLE", "SQUARE", "CIRCLE", "OVAL", "RUNNER", "IRREGULAR", "CUSTOM"]).optional(),
   complexity: z.enum(["SIMPLE", "MEDIUM", "COMPLEX", "VERY_COMPLEX"]).optional(),
   colors: z.string().optional(),
   quantity: z.string().default("1"),
@@ -62,7 +64,7 @@ const itemSchema = z.object({
 
 const schema = z.object({
   customerId: z.string().min(1, "Customer is required"),
-  priority: z.enum(["LOW", "NORMAL", "HIGH", "URGENT"]).default("NORMAL"),
+  priority: z.enum(["LOW", "NORMAL", "HIGH", "RUSH"]).default("NORMAL"),
   orderDate: z.string().optional(),
   promisedDate: z.string().optional(),
   depositRequired: z.string().default("0"),

@@ -10,7 +10,7 @@ import Image from "next/image";
 import {
   LayoutDashboard, Users, ShoppingBag, Factory, Package,
   Truck, Wallet, BarChart3, Settings, ClipboardList, Bell,
-  ChevronLeft, ChevronRight, MessageSquare,
+  ChevronLeft, ChevronRight, MessageSquare, Images, LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -44,6 +44,17 @@ const NAV: NavItem[] = [
   {
     label: "Inventory", href: "/inventory", icon: Package,
     permission: "inventory.read",
+  },
+  {
+    label: "Finished Products", href: "/finished-products", icon: Images,
+    permission: "finishedProducts.read",
+  },
+  {
+    label: "Content", href: "/content", icon: LayoutGrid,
+    permission: "roomShowcase.read",
+    children: [
+      { label: "Room Showcase", href: "/content/room-showcase" },
+    ],
   },
   {
     label: "Procurement", href: "/procurement", icon: Truck,

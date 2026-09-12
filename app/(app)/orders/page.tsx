@@ -23,7 +23,7 @@ const PRIORITY_COLORS: Record<string, string> = {
   LOW: "bg-slate-100 text-slate-600",
   NORMAL: "bg-blue-100 text-blue-600",
   HIGH: "bg-amber-100 text-amber-700",
-  URGENT: "bg-red-100 text-red-700",
+  RUSH: "bg-red-100 text-red-700",
 };
 
 const columns: ColumnDef<Order>[] = [

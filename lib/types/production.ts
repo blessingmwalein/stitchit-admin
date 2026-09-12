@@ -49,7 +49,7 @@ export interface ProductionJob {
   customerName: string;
   status: JobStatus;
   currentStage: ProductionStageCode;
-  priority: "LOW" | "NORMAL" | "HIGH" | "URGENT";
+  priority: "LOW" | "NORMAL" | "HIGH" | "RUSH";
   stages: ProductionJobStage[];
   queuePosition: number | null;
   startedAt: string | null;
