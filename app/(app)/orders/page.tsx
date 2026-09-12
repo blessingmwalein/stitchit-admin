@@ -100,6 +100,36 @@ const columns: ColumnDef<Order>[] = [
   },
 ];
 
+function OrderMobileCard({ order, onClick }: { order: Order; onClick: () => void }) {
+  const c = (order as any).customer;
+  const name = c
+    ? (c.firstName ? `${c.firstName} ${c.lastName ?? ""}`.trim() : c.companyName ?? c.customerNumber)
+    : "—";
+  return (
+    <div onClick={onClick} className="rounded-xl border bg-card p-3.5 space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-mono text-xs text-muted-foreground">{order.orderNumber}</p>
+          <p className="font-medium truncate">{name}</p>
+        </div>
+        <StatusBadge status={order.status} />
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-semibold">${Number(order.total).toFixed(2)}</span>
+        <span className={order.balance > 0 ? "text-red-600" : "text-green-600"}>
+          Bal ${Number(order.balance).toFixed(2)}
+        </span>
+      </div>
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <Badge variant="outline" className={`border-transparent ${PRIORITY_COLORS[order.priority]}`}>
+          {order.priority}
+        </Badge>
+        <span>{order.promisedDate ? `Due ${format(new Date(order.promisedDate), "dd MMM")}` : "No due date"}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function OrdersPage() {
   const router = useRouter();
   const [showCreate, setShowCreate] = React.useState(false);
@@ -145,6 +175,7 @@ export default function OrdersPage() {
         onPageSizeChange={setPageSize}
         loading={isLoading}
         onRowClick={(r) => router.push(`/orders/${r.id}`)}
+        mobileCard={(r) => <OrderMobileCard order={r} onClick={() => router.push(`/orders/${r.id}`)} />}
       />
     </div>
   );

@@ -11,7 +11,6 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Plus, Phone, Mail } from "lucide-react";
 import { LeadFormModal } from "@/components/modules/crm/lead-form-modal";
 
@@ -66,12 +65,12 @@ export default function LeadsPage() {
 
       <LeadFormModal open={showCreate} onOpenChange={setShowCreate} />
 
-      <ScrollArea className="flex-1 p-4">
-        <div className="flex gap-3 pb-4" style={{ minWidth: `${LEAD_STAGES.length * 240}px` }}>
+      <div className="flex-1 overflow-x-auto snap-x snap-mandatory md:snap-none p-4">
+        <div className="flex gap-3 pb-4">
           {LEAD_STAGES.map((stage) => {
             const leads: Lead[] = kanban[stage] ?? [];
             return (
-              <div key={stage} className="w-56 shrink-0">
+              <div key={stage} className="w-[85vw] sm:w-56 shrink-0 snap-center">
                 <div className="mb-2 flex items-center justify-between px-1">
                   <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     {STAGE_LABELS[stage]}
@@ -94,8 +93,7 @@ export default function LeadsPage() {
             );
           })}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
     </div>
   );
 }

@@ -186,7 +186,7 @@ export function PaymentFormModal({ open, onOpenChange, prefill, onSuccess }: Pay
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg overflow-hidden flex flex-col p-0">
+      <DialogContent className="w-[95vw] sm:max-w-lg overflow-hidden flex flex-col p-0 max-h-[90vh]">
         <DialogHeader className="shrink-0 px-6 pt-6 pb-4 border-b">
           <DialogTitle>Record Payment</DialogTitle>
         </DialogHeader>
@@ -301,7 +301,7 @@ export function PaymentFormModal({ open, onOpenChange, prefill, onSuccess }: Pay
 
               {/* Method + Amount */}
               {isCustomerPayment ? (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField control={form.control} name="method" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Method *</FormLabel>
@@ -337,7 +337,7 @@ export function PaymentFormModal({ open, onOpenChange, prefill, onSuccess }: Pay
 
               {/* Date + Reference */}
               {isCustomerPayment ? (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField control={form.control} name="paymentDate" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Date *</FormLabel>

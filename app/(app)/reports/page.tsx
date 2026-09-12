@@ -102,7 +102,7 @@ function CashSummaryTab() {
       <DateRangeForm defaults={defaults} onApply={(from, to) => setParams({ from, to })} />
 
       {/* 3 summary KPIs */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         <div className="rounded-xl border bg-card px-5 py-4">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Cash In</p>
           <p className="text-3xl font-normal tabular-nums mt-2 text-emerald-600">{usd(totalIn)}</p>
@@ -123,11 +123,11 @@ function CashSummaryTab() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : (
-        <div className="grid grid-cols-2 gap-6 max-w-3xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl">
           {/* Payments by method */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Receipts by Payment Method</p>
-            <div className="rounded-xl border overflow-hidden">
+            <div className="rounded-xl border overflow-hidden overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted/30">
                   <tr>
@@ -159,7 +159,7 @@ function CashSummaryTab() {
             </div>
 
             {/* Deposit vs Balance breakdown */}
-            <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
               {[{ label: "Deposits", filter: (p: any) => p.isDeposit }, { label: "Balance Payments", filter: (p: any) => !p.isDeposit }].map(({ label, filter }) => {
                 const subset = payments.filter(filter);
                 const amt    = subset.reduce((s, r) => s + Number(r.amount ?? 0), 0);
@@ -177,7 +177,7 @@ function CashSummaryTab() {
           {/* Expenses by category */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Expenses by Category</p>
-            <div className="rounded-xl border overflow-hidden">
+            <div className="rounded-xl border overflow-hidden overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted/30">
                   <tr>
@@ -228,7 +228,7 @@ function TrialBalanceTab() {
     <div>
       <DateRangeForm defaults={defaults} onApply={(from, to) => setParams({ from, to })} />
       {isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : (
-        <div className="rounded-xl border overflow-hidden max-w-2xl">
+        <div className="rounded-xl border overflow-hidden overflow-x-auto max-w-2xl">
           <table className="w-full text-sm">
             <thead className="bg-muted/30">
               <tr className="border-b text-xs text-muted-foreground">
@@ -318,7 +318,7 @@ function BalanceSheetTab() {
         </div>
       </div>
       {isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : (
-        <div className="grid grid-cols-2 gap-8 max-w-2xl text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-2xl text-sm">
           {["Assets", "Liabilities & Equity"].map((side) => {
             const sections: any[] = side === "Assets" ? (data?.assets ?? []) : (data?.liabilitiesAndEquity ?? []);
             return (
@@ -410,7 +410,7 @@ export default function ReportsPage() {
       </PageHeader>
       <div className="flex-1 px-6 pt-4 overflow-auto">
         <Tabs defaultValue="cash-summary">
-          <TabsList className="mb-1">
+          <TabsList className="mb-1 max-w-full overflow-x-auto">
             <TabsTrigger value="cash-summary">
               Cash Summary
               <Badge variant="secondary" className="ml-1.5 text-[10px] py-0 px-1.5 bg-orange-100 text-orange-700 border-0">Live</Badge>

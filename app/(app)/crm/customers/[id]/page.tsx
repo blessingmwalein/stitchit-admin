@@ -166,10 +166,10 @@ export default function CustomerDetailPage() {
         </div>
       </div>
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 flex-col md:flex-row">
 
         {/* ── Left sidebar ──────────────────────────────────────────────── */}
-        <aside className="w-72 shrink-0 border-r bg-card sticky top-[49px] self-start max-h-[calc(100vh-49px)] overflow-y-auto">
+        <aside className="w-full md:w-72 shrink-0 border-b md:border-b-0 md:border-r bg-card md:sticky md:top-[49px] md:self-start md:max-h-[calc(100vh-49px)] overflow-y-auto">
           <div className="p-5 space-y-5">
 
             {/* Avatar + name */}
@@ -283,7 +283,7 @@ export default function CustomerDetailPage() {
               {/* ── Details tab ──────────────────────────────────────── */}
               <TabsContent value="details" className="m-0 p-6 outline-none">
                 {/* Stat cards */}
-                <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                   <StatCard label="Total Spend"   value={money(totalSpend)} />
                   <StatCard label="Orders"        value={String(ordersCount)} />
                   <StatCard label="Outstanding"   value={money(outstanding)} />
@@ -333,7 +333,7 @@ export default function CustomerDetailPage() {
                     <p className="text-sm text-muted-foreground">No orders yet</p>
                   </div>
                 ) : (
-                  <div className="rounded-xl border overflow-hidden">
+                  <div className="rounded-xl border overflow-hidden overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-muted/30 border-b">
@@ -383,7 +383,7 @@ export default function CustomerDetailPage() {
                 ) : (
                   <>
                     {/* Summary bar */}
-                    <div className="grid grid-cols-3 gap-3 mb-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
                       <StatCard
                         label="Total Received"
                         value={money(payments.reduce((s: number, p: any) => s + Number(p.amount ?? 0), 0))}
@@ -398,7 +398,7 @@ export default function CustomerDetailPage() {
                       />
                     </div>
 
-                    <div className="rounded-xl border overflow-hidden">
+                    <div className="rounded-xl border overflow-hidden overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-muted/30 border-b">

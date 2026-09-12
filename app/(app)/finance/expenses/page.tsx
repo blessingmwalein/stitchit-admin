@@ -20,6 +20,34 @@ import {
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { ExpenseFormModal } from "@/components/modules/finance/expense-form-modal";
 
+function ExpenseMobileCard({ expense, onEdit, onDelete }: { expense: Expense; onEdit: () => void; onDelete: () => void }) {
+  const amt = (expense as any).amount ?? (expense as any).amountUsd ?? 0;
+  const d = (expense as any).date ?? (expense as any).expenseDate ?? (expense as any).createdAt;
+  return (
+    <div className="rounded-xl border bg-card p-3.5 space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-mono text-xs text-muted-foreground">{expense.expenseNumber}</p>
+          <p className="font-medium truncate">{(expense as any).payee || expense.description || "—"}</p>
+          <p className="text-xs text-muted-foreground capitalize">{(expense.category ?? "").replace(/_/g, " ").toLowerCase()}</p>
+        </div>
+        <div className="flex items-center gap-0.5 shrink-0">
+          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={onEdit}>
+            <Pencil className="h-3.5 w-3.5" />
+          </Button>
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={onDelete}>
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-semibold">${Number(amt).toFixed(2)}</span>
+        <span className="text-xs text-muted-foreground">{d ? format(new Date(d), "dd MMM yyyy") : "—"}</span>
+      </div>
+    </div>
+  );
+}
+
 const CATEGORIES = [
   { value: "RENT",        label: "Rent" },
   { value: "UTILITIES",   label: "Utilities" },
@@ -186,7 +214,7 @@ export default function ExpensesPage() {
       </PageHeader>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-3 divide-x border-b bg-card">
+      <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y sm:divide-y-0 border-b bg-card">
         <div className="px-6 py-4">
           <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Total Expenses</p>
           <p className="text-2xl font-normal tabular-nums mt-1 text-red-600">${statsTotal.toFixed(2)}</p>
@@ -275,6 +303,13 @@ export default function ExpensesPage() {
         pageSize={pageSize}
         onPageChange={setPage}
         loading={isLoading}
+        mobileCard={(r) => (
+          <ExpenseMobileCard
+            expense={r}
+            onEdit={() => setEditingExpense(r)}
+            onDelete={() => { if (confirm("Delete this expense? This cannot be undone.")) deleteMut.mutate(r.id); }}
+          />
+        )}
       />
     </div>
   );

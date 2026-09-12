@@ -124,6 +124,27 @@ const columns: ColumnDef<InvoiceRow>[] = [
   },
 ];
 
+function InvoiceMobileCard({ invoice, onClick }: { invoice: InvoiceRow; onClick: () => void }) {
+  const balance = Number(invoice.balance);
+  return (
+    <div onClick={onClick} className="rounded-xl border bg-card p-3.5 space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-mono text-xs text-muted-foreground">{invoice.invoiceNumber}</p>
+          <p className="font-medium truncate">{customerName(invoice)}</p>
+        </div>
+        <StatusBadge status={invoice.status} />
+      </div>
+      <div className="flex items-center gap-2">{typeBadge(invoice.type)}</div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-semibold">${Number(invoice.total).toFixed(2)}</span>
+        <span className={balance > 0 ? "text-red-600" : "text-green-600"}>Bal ${balance.toFixed(2)}</span>
+      </div>
+      <p className="text-xs text-muted-foreground">Due {safeDate(invoice.dueDate)}</p>
+    </div>
+  );
+}
+
 // ── Invoice Drawer ────────────────────────────────────────────────────────────
 
 function InvoiceDrawer({
@@ -493,6 +514,7 @@ export default function InvoicesPage() {
         onPageChange={setPage}
         loading={isLoading}
         onRowClick={(r) => setSelectedId(r.id)}
+        mobileCard={(r) => <InvoiceMobileCard invoice={r} onClick={() => setSelectedId(r.id)} />}
       />
     </div>
   );

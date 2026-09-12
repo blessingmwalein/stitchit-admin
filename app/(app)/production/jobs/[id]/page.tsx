@@ -172,7 +172,7 @@ export default function JobDetailPage() {
         </Button>
       </PageHeader>
 
-      <div className="px-6 grid grid-cols-4 gap-3">
+      <div className="px-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
         <KpiCard title="Progress" value={`${progress}%`} />
         <KpiCard title="Current stage" value={job.currentStage ? stageLabel(job.currentStage) : "—"} />
         <KpiCard title="Size" value={`${job.widthCm} × ${job.heightCm} cm`} />

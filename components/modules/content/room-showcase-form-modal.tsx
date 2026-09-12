@@ -103,7 +103,7 @@ export function RoomShowcaseFormModal({ open, onOpenChange, item }: RoomShowcase
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg overflow-hidden flex flex-col p-0">
+      <DialogContent className="w-[95vw] sm:max-w-lg overflow-hidden flex flex-col p-0 max-h-[90vh]">
         <DialogHeader className="shrink-0 px-6 pt-6 pb-4 border-b">
           <DialogTitle>{isEdit ? "Edit Room Showcase" : "New Room Showcase Item"}</DialogTitle>
         </DialogHeader>

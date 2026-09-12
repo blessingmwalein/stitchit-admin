@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, ChevronsUpDown, ChevronUp, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
@@ -28,6 +29,8 @@ interface DataTableProps<TData> {
   loading?: boolean;
   onRowClick?: (row: TData) => void;
   className?: string;
+  /** Compact card renderer used below the `md` breakpoint instead of the table. */
+  mobileCard?: (row: TData) => React.ReactNode;
 }
 
 export function DataTable<TData>({
@@ -41,7 +44,9 @@ export function DataTable<TData>({
   loading,
   onRowClick,
   className,
+  mobileCard,
 }: DataTableProps<TData>) {
+  const isMobile = useIsMobile();
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -67,6 +72,8 @@ export function DataTable<TData>({
     getSortedRowModel: getSortedRowModel(),
   });
 
+  const showMobileCards = isMobile && !!mobileCard;
+
   return (
     <div className={cn("flex flex-col rounded-2xl border overflow-hidden", className)}>
       <div className="relative overflow-auto">
@@ -75,6 +82,23 @@ export function DataTable<TData>({
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         )}
+        {showMobileCards ? (
+          table.getRowModel().rows.length === 0 ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">No records found.</div>
+          ) : (
+            <div className="space-y-2 p-3">
+              {table.getRowModel().rows.map((row) => (
+                <div
+                  key={row.id}
+                  onClick={() => onRowClick?.(row.original)}
+                  className={cn(onRowClick && "cursor-pointer active:opacity-70")}
+                >
+                  {mobileCard!(row.original)}
+                </div>
+              ))}
+            </div>
+          )
+        ) : (
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
@@ -133,6 +157,7 @@ export function DataTable<TData>({
             )}
           </TableBody>
         </Table>
+        )}
       </div>
 
       {/* Pagination */}

@@ -109,6 +109,30 @@ const columns: ColumnDef<Customer>[] = [
   },
 ];
 
+function CustomerMobileCard({ customer, onClick }: { customer: Customer; onClick: () => void }) {
+  const c = customer as any;
+  const outstanding = Number(c.outstandingBalance);
+  const count = c._count?.orders ?? c.ordersCount ?? "—";
+  return (
+    <div onClick={onClick} className="rounded-xl border bg-card p-3.5 space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-medium truncate">{customerDisplayName(customer)}</p>
+          {c.email && <p className="text-xs text-muted-foreground truncate">{c.email}</p>}
+          <p className="text-xs text-muted-foreground font-mono mt-0.5">{customer.customerNumber}</p>
+        </div>
+        <Badge variant="outline" className="text-xs capitalize shrink-0">{customer.type.toLowerCase()}</Badge>
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">{count} order{count === 1 ? "" : "s"}</span>
+        <span className={!isNaN(outstanding) && outstanding > 0 ? "text-red-600 font-medium" : "text-muted-foreground"}>
+          {isNaN(outstanding) ? "—" : `$${outstanding.toFixed(2)} owed`}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function CustomersPage() {
   const router = useRouter();
   const [showCreate, setShowCreate] = React.useState(false);
@@ -157,6 +181,7 @@ export default function CustomersPage() {
         onPageSizeChange={setPageSize}
         loading={isLoading}
         onRowClick={(r) => router.push(`/crm/customers/${r.id}`)}
+        mobileCard={(r) => <CustomerMobileCard customer={r} onClick={() => router.push(`/crm/customers/${r.id}`)} />}
       />
     </div>
   );

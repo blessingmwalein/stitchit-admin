@@ -162,7 +162,7 @@ export function ExpenseFormModal({ open, onOpenChange, expense }: ExpenseFormMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg overflow-hidden flex flex-col p-0">
+      <DialogContent className="w-[95vw] sm:max-w-lg overflow-hidden flex flex-col p-0 max-h-[90vh]">
         <DialogHeader className="shrink-0 px-6 pt-6 pb-4 border-b">
           <DialogTitle>{isEdit ? "Edit Expense" : "Record Expense"}</DialogTitle>
         </DialogHeader>
@@ -172,7 +172,7 @@ export function ExpenseFormModal({ open, onOpenChange, expense }: ExpenseFormMod
             <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-4">
 
               {/* Date + Category */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="date" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Date *</FormLabel>
@@ -198,7 +198,7 @@ export function ExpenseFormModal({ open, onOpenChange, expense }: ExpenseFormMod
               </div>
 
               {/* Amount + Payee */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="amount" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Amount (USD) *</FormLabel>

@@ -484,10 +484,10 @@ export default function OrderDetailPage() {
       </div>
 
       {/* ── Split layout ── */}
-      <div className="flex flex-1">
+      <div className="flex flex-1 flex-col md:flex-row">
 
         {/* ──── LEFT SIDEBAR ──── */}
-        <aside className="w-80 shrink-0 border-r bg-card sticky top-[49px] self-start max-h-[calc(100vh-49px)] overflow-y-auto">
+        <aside className="w-full md:w-80 shrink-0 border-b md:border-b-0 md:border-r bg-card md:sticky md:top-[49px] md:self-start md:max-h-[calc(100vh-49px)] overflow-y-auto">
 
           {/* Customer */}
           <div className="p-5">
@@ -803,7 +803,7 @@ export default function OrderDetailPage() {
           {/* Tabs */}
           <div className="flex-1 px-6 pt-5 pb-8">
             <Tabs defaultValue="overview" className="flex flex-col">
-              <TabsList className="h-auto bg-transparent rounded-none p-0 border-b w-full justify-start gap-0 mb-5">
+              <TabsList className="h-auto bg-transparent rounded-none p-0 border-b w-full justify-start gap-0 mb-5 overflow-x-auto">
                 {[
                   { value: "overview",  label: "Overview" },
                   { value: "payments",  label: `Payments${payments.length > 0 ? ` (${payments.length})` : ""}` },

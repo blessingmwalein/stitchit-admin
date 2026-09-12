@@ -10,7 +10,6 @@ import { PageHeader } from "@/components/shared/page-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -44,12 +43,12 @@ export default function ProductionPage() {
     <div className="flex flex-col">
       <PageHeader title="Production" description="Active jobs by stage" />
 
-      <ScrollArea className="flex-1 p-4">
-        <div className="flex gap-3 pb-4" style={{ minWidth: `${PRODUCTION_STAGES.length * 220}px` }}>
+      <div className="flex-1 overflow-x-auto snap-x snap-mandatory md:snap-none p-4">
+        <div className="flex gap-3 pb-4">
           {PRODUCTION_STAGES.map((stage) => {
             const jobs: ProductionJob[] = columns[stage] ?? [];
             return (
-              <div key={stage} className="w-52 shrink-0">
+              <div key={stage} className="w-[85vw] sm:w-52 shrink-0 snap-center">
                 <div className="mb-2 flex items-center justify-between px-1">
                   <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground truncate">
                     {stageLabel(stage)}
@@ -72,8 +71,7 @@ export default function ProductionPage() {
             );
           })}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
     </div>
   );
 }

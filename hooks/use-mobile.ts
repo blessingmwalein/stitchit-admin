@@ -1,21 +1,20 @@
+"use client";
+
 import * as React from "react";
 
-const MOBILE_BREAKPOINT = 768;
+const MOBILE_QUERY = "(max-width: 767px)";
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
-    undefined
-  );
+/** SSR-safe: defaults to false, updates after mount. Breakpoint matches the `md` shell switch. */
+export function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    };
+    const mql = window.matchMedia(MOBILE_QUERY);
+    setIsMobile(mql.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mql.addEventListener("change", onChange);
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  return !!isMobile;
+  return isMobile;
 }

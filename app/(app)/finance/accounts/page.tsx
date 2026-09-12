@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type AccountTree = Account & { children?: AccountTree[] };
 
@@ -73,7 +74,45 @@ function AccountRow({ account, depth }: { account: AccountTree; depth: number })
   );
 }
 
+function AccountRowMobile({ account, depth }: { account: AccountTree; depth: number }) {
+  const [open, setOpen] = React.useState(depth < 1);
+  const hasChildren = (account.children?.length ?? 0) > 0;
+
+  return (
+    <div>
+      <div
+        className="flex items-center gap-2 py-2.5 border-b active:bg-muted/40"
+        style={{ paddingLeft: `${depth * 14}px` }}
+        onClick={() => hasChildren && setOpen((v) => !v)}
+      >
+        {hasChildren ? (
+          open ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        ) : (
+          <span className="w-3.5 shrink-0" />
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <span className="font-mono text-xs text-muted-foreground">{account.code}</span>
+            <span className={cn("font-medium text-sm truncate", depth === 0 && "font-semibold")}>{account.name}</span>
+          </div>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <Badge variant="secondary" className={cn("text-xs", TYPE_COLORS[account.type] ?? "")}>{account.type}</Badge>
+            {account.isSystem && <Badge variant="outline" className="text-xs">System</Badge>}
+          </div>
+        </div>
+        <span className="text-sm tabular-nums shrink-0">
+          {account.balance !== undefined ? `$${Number(account.balance).toFixed(2)}` : "—"}
+        </span>
+      </div>
+      {open && account.children?.map((child) => (
+        <AccountRowMobile key={child.id} account={child} depth={depth + 1} />
+      ))}
+    </div>
+  );
+}
+
 export default function AccountsPage() {
+  const isMobile = useIsMobile();
   const { data: accountsResult, isLoading } = useQuery({
     queryKey: ["accounts"],
     queryFn: () => accountsApi.list({ pageSize: 500 }),
@@ -91,6 +130,12 @@ export default function AccountsPage() {
       <div className="flex-1 overflow-auto px-6 pt-4">
         {isLoading ? (
           <div className="text-sm text-muted-foreground p-4">Loading…</div>
+        ) : isMobile ? (
+          <div className="rounded-xl border overflow-hidden">
+            {tree.map((account) => (
+              <AccountRowMobile key={account.id} account={account} depth={0} />
+            ))}
+          </div>
         ) : (
           <table className="w-full text-sm">
             <thead>

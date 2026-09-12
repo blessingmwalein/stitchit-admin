@@ -6,30 +6,9 @@ import {
   CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList,
 } from "@/components/ui/command";
 import { useUiStore } from "@/stores/ui-store";
-import {
-  LayoutDashboard, Users, FileText, ShoppingBag, Factory, Package,
-  Truck, Wallet, BarChart3, Settings, ClipboardList, Bell, MessageSquare,
-} from "lucide-react";
+import { flattenNavForSearch } from "@/lib/nav-config";
 
-const LINKS = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Leads", href: "/crm/leads", icon: Users },
-  { label: "Customers", href: "/crm/customers", icon: Users },
-  { label: "Quotations", href: "/quotations", icon: FileText },
-  { label: "Orders", href: "/orders", icon: ShoppingBag },
-  { label: "Production", href: "/production", icon: Factory },
-  { label: "Inventory", href: "/inventory", icon: Package },
-  { label: "Procurement", href: "/procurement", icon: Truck },
-  { label: "Invoices", href: "/finance/invoices", icon: Wallet },
-  { label: "Payments", href: "/finance/payments", icon: Wallet },
-  { label: "Expenses", href: "/finance/expenses", icon: Wallet },
-  { label: "Journals", href: "/finance/journals", icon: Wallet },
-  { label: "Reports", href: "/reports", icon: BarChart3 },
-  { label: "WhatsApp", href: "/whatsapp", icon: MessageSquare },
-  { label: "Notifications", href: "/notifications", icon: Bell },
-  { label: "Audit Logs", href: "/audit", icon: ClipboardList },
-  { label: "Settings", href: "/settings", icon: Settings },
-];
+const LINKS = flattenNavForSearch();
 
 export function CommandPalette() {
   const { commandOpen, setCommandOpen } = useUiStore();

@@ -75,6 +75,22 @@ const columns: ColumnDef<AuditLog>[] = [
   },
 ];
 
+function AuditMobileCard({ log }: { log: AuditLog }) {
+  return (
+    <div className="rounded-xl border bg-card p-3.5 space-y-1.5">
+      <div className="flex items-start justify-between gap-2">
+        <Badge variant="secondary" className={`text-xs ${ACTION_COLORS[log.action] ?? ""}`}>
+          {log.action}
+        </Badge>
+        <span className="text-xs text-muted-foreground">{format(new Date(log.createdAt), "dd MMM HH:mm:ss")}</span>
+      </div>
+      <p className="text-sm font-medium">{log.entityType}</p>
+      <p className="font-mono text-xs text-muted-foreground truncate">{log.entityId}</p>
+      <p className="text-xs text-muted-foreground">{log.userName ?? "System"} · {log.ip ?? "—"}</p>
+    </div>
+  );
+}
+
 export default function AuditPage() {
   const [search, setSearch] = useQueryState("search", { defaultValue: "" });
   const [page, setPage] = useQueryState("page", { defaultValue: 1, parse: Number });
@@ -94,7 +110,11 @@ export default function AuditPage() {
           <Input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search actions, entities…" className="h-8 pl-8 text-sm" />
         </div>
       </div>
-      <DataTable columns={columns} data={data?.data ?? []} total={data?.meta?.total} page={page} pageSize={pageSize} onPageChange={setPage} loading={isLoading} />
+      <DataTable
+        columns={columns} data={data?.data ?? []} total={data?.meta?.total}
+        page={page} pageSize={pageSize} onPageChange={setPage} loading={isLoading}
+        mobileCard={(r) => <AuditMobileCard log={r} />}
+      />
     </div>
   );
 }

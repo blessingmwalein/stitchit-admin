@@ -29,6 +29,67 @@ function safeDate(d: string | null | undefined) {
   try { return format(new Date(d), "dd MMM yyyy"); } catch { return "—"; }
 }
 
+function FinishedProductMobileCard({ product, onClick, onPublishToggle, onFeatureToggle, onEdit, onDelete }: {
+  product: FinishedProduct;
+  onClick: () => void;
+  onPublishToggle: () => void;
+  onFeatureToggle: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const c = product.customer;
+  const clientName = c ? (c.companyName || [c.firstName, c.lastName].filter(Boolean).join(" ")) : null;
+  return (
+    <div onClick={onClick} className="rounded-xl border bg-card p-3.5 space-y-2.5">
+      <div className="flex items-start gap-3">
+        {product.primaryImageUrl ? (
+          <img src={product.primaryImageUrl} alt="" className="h-14 w-14 rounded-lg object-cover border shrink-0" />
+        ) : (
+          <div className="h-14 w-14 rounded-lg border bg-muted flex items-center justify-center shrink-0">
+            <Package className="h-5 w-5 text-muted-foreground" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="font-medium truncate">{product.name}</p>
+          <p className="text-xs text-muted-foreground font-mono">{product.productNumber}</p>
+          {clientName && <p className="text-xs text-muted-foreground truncate">{clientName}</p>}
+        </div>
+        <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={(e) => { e.stopPropagation(); onFeatureToggle(); }}>
+          <Star className={cn("h-4 w-4", product.isFeatured ? "fill-amber-400 text-amber-400" : "text-muted-foreground")} />
+        </Button>
+      </div>
+
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">
+          {product.widthCm && product.heightCm ? `${product.widthCm} × ${product.heightCm} cm` : "Custom size"}
+        </span>
+        {product.price != null && <span className="font-medium">${Number(product.price).toFixed(2)}</span>}
+      </div>
+
+      <div className="flex items-center gap-2 flex-wrap">
+        <StatusBadge status={product.status} />
+        {product.publishedAt ? (
+          <Badge variant="outline" className="border-transparent bg-green-100 text-green-700 text-xs"><CheckCircle2 className="h-3 w-3 mr-1" />Published</Badge>
+        ) : (
+          <Badge variant="outline" className="border-transparent bg-slate-100 text-slate-600 text-xs"><Circle className="h-3 w-3 mr-1" />Draft</Badge>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 pt-1 border-t" onClick={(e) => e.stopPropagation()}>
+        <Button size="sm" variant="outline" className="h-8 flex-1 text-xs" onClick={onPublishToggle}>
+          {product.publishedAt ? "Unpublish" : "Publish"}
+        </Button>
+        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={onEdit}>
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={onDelete}>
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function FinishedProductsPage() {
   const qc = useQueryClient();
   const [showCreate, setShowCreate] = React.useState(false);
@@ -267,6 +328,16 @@ export default function FinishedProductsPage() {
         onPageSizeChange={setPageSize}
         loading={isLoading}
         onRowClick={(r) => setEditingProduct(r)}
+        mobileCard={(r) => (
+          <FinishedProductMobileCard
+            product={r}
+            onClick={() => setEditingProduct(r)}
+            onPublishToggle={() => publishMut.mutate(r)}
+            onFeatureToggle={() => featureMut.mutate(r)}
+            onEdit={() => setEditingProduct(r)}
+            onDelete={() => setDeletingId(r.id)}
+          />
+        )}
       />
     </div>
   );

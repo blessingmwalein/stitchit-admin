@@ -790,10 +790,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Split body */}
-      <div className="flex flex-1">
+      <div className="flex flex-1 flex-col md:flex-row">
 
         {/* ── LEFT SIDEBAR ─────────────────────────────────────────────── */}
-        <aside className="w-72 shrink-0 border-r bg-card sticky top-[49px] self-start max-h-[calc(100vh-49px)] overflow-y-auto">
+        <aside className="w-full md:w-72 shrink-0 border-b md:border-b-0 md:border-r bg-card md:sticky md:top-[49px] md:self-start md:max-h-[calc(100vh-49px)] overflow-y-auto">
           <div className="p-5 space-y-5">
 
             {/* Company profile card */}
@@ -869,7 +869,7 @@ export default function SettingsPage() {
 
             {/* Sticky tabs header */}
             <div className="sticky top-[49px] z-10 bg-card border-b px-6 pt-4 shrink-0">
-              <TabsList className="h-auto bg-transparent rounded-none p-0 w-full justify-start gap-0">
+              <TabsList className="h-auto bg-transparent rounded-none p-0 w-full justify-start gap-0 overflow-x-auto">
                 <TabsTrigger value="company"   className={TAB_TRIGGER_CLS}>Company</TabsTrigger>
                 <TabsTrigger value="users"     className={TAB_TRIGGER_CLS}>Users</TabsTrigger>
                 <TabsTrigger value="roles"     className={TAB_TRIGGER_CLS}>Roles</TabsTrigger>

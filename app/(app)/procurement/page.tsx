@@ -52,6 +52,64 @@ const billCols: ColumnDef<Bill>[] = [
   { accessorKey: "dueDate", header: "Due", cell: ({ row }) => format(new Date(row.original.dueDate), "dd MMM yyyy") },
 ];
 
+function SupplierMobileCard({ supplier, onClick }: { supplier: Supplier; onClick: () => void }) {
+  return (
+    <div onClick={onClick} className="rounded-xl border bg-card p-3.5 space-y-1.5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-medium truncate">{supplier.name}</p>
+          <p className="font-mono text-xs text-muted-foreground">{supplier.supplierNumber}</p>
+        </div>
+        <span className={supplier.outstandingBalance > 0 ? "text-red-600 text-sm font-medium shrink-0" : "text-sm text-muted-foreground shrink-0"}>
+          ${Number(supplier.outstandingBalance).toFixed(2)}
+        </span>
+      </div>
+      <p className="text-xs text-muted-foreground">{supplier.contactPerson ?? "—"} · {supplier.phone ?? "—"}</p>
+    </div>
+  );
+}
+
+function PoMobileCard({ po }: { po: PurchaseOrder }) {
+  return (
+    <div className="rounded-xl border bg-card p-3.5 space-y-1.5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-mono text-xs text-muted-foreground">{po.poNumber}</p>
+          <p className="font-medium truncate">{po.supplierName}</p>
+        </div>
+        <StatusBadge status={po.status} />
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-medium">${Number(po.total).toFixed(2)}</span>
+        <span className="text-xs text-muted-foreground">
+          {po.expectedDate ? `Expected ${format(new Date(po.expectedDate), "dd MMM yyyy")}` : "No date"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function BillMobileCard({ bill }: { bill: Bill }) {
+  return (
+    <div className="rounded-xl border bg-card p-3.5 space-y-1.5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-mono text-xs text-muted-foreground">{bill.billNumber}</p>
+          <p className="font-medium truncate">{bill.supplierName}</p>
+        </div>
+        <StatusBadge status={bill.status} />
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-medium">${Number(bill.total).toFixed(2)}</span>
+        <span className={bill.balance > 0 ? "text-red-600" : "text-muted-foreground"}>
+          Bal ${Number(bill.balance).toFixed(2)}
+        </span>
+      </div>
+      <p className="text-xs text-muted-foreground">Due {format(new Date(bill.dueDate), "dd MMM yyyy")}</p>
+    </div>
+  );
+}
+
 export default function ProcurementPage() {
   const [showSupplier, setShowSupplier] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("suppliers");
@@ -89,13 +147,26 @@ export default function ProcurementPage() {
           </TabsList>
 
           <TabsContent value="suppliers" className="mt-4">
-            <DataTable columns={supplierCols} data={suppliers.data?.data ?? []} total={suppliers.data?.meta?.total} page={page} pageSize={pageSize} onPageChange={setPage} loading={suppliers.isLoading} onRowClick={(r) => setEditSupplier(r)} />
+            <DataTable
+              columns={supplierCols} data={suppliers.data?.data ?? []} total={suppliers.data?.meta?.total}
+              page={page} pageSize={pageSize} onPageChange={setPage} loading={suppliers.isLoading}
+              onRowClick={(r) => setEditSupplier(r)}
+              mobileCard={(r) => <SupplierMobileCard supplier={r} onClick={() => setEditSupplier(r)} />}
+            />
           </TabsContent>
           <TabsContent value="pos" className="mt-4">
-            <DataTable columns={poCols} data={pos.data?.data ?? []} total={pos.data?.meta?.total} page={page} pageSize={pageSize} onPageChange={setPage} loading={pos.isLoading} />
+            <DataTable
+              columns={poCols} data={pos.data?.data ?? []} total={pos.data?.meta?.total}
+              page={page} pageSize={pageSize} onPageChange={setPage} loading={pos.isLoading}
+              mobileCard={(r) => <PoMobileCard po={r} />}
+            />
           </TabsContent>
           <TabsContent value="bills" className="mt-4">
-            <DataTable columns={billCols} data={bills.data?.data ?? []} total={bills.data?.meta?.total} page={page} pageSize={pageSize} onPageChange={setPage} loading={bills.isLoading} />
+            <DataTable
+              columns={billCols} data={bills.data?.data ?? []} total={bills.data?.meta?.total}
+              page={page} pageSize={pageSize} onPageChange={setPage} loading={bills.isLoading}
+              mobileCard={(r) => <BillMobileCard bill={r} />}
+            />
           </TabsContent>
         </Tabs>
       </div>

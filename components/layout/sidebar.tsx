@@ -7,82 +7,11 @@ import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui-store";
 import { useCan } from "@/hooks/use-can";
 import Image from "next/image";
-import {
-  LayoutDashboard, Users, ShoppingBag, Factory, Package,
-  Truck, Wallet, BarChart3, Settings, ClipboardList, Bell,
-  ChevronLeft, ChevronRight, MessageSquare, Images, LayoutGrid,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-
-interface NavItem {
-  label: string;
-  href: string;
-  icon: React.ElementType;
-  permission?: string;
-  children?: { label: string; href: string }[];
-}
-
-const NAV: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  {
-    label: "CRM", href: "/crm", icon: Users,
-    children: [
-      { label: "Leads", href: "/crm/leads" },
-      { label: "Customers", href: "/crm/customers" },
-    ],
-  },
-  {
-    label: "Orders", href: "/orders", icon: ShoppingBag,
-    permission: "orders.read",
-  },
-  {
-    label: "Production", href: "/production", icon: Factory,
-    permission: "production.read",
-  },
-  {
-    label: "Inventory", href: "/inventory", icon: Package,
-    permission: "inventory.read",
-  },
-  {
-    label: "Finished Products", href: "/finished-products", icon: Images,
-    permission: "finishedProducts.read",
-  },
-  {
-    label: "Content", href: "/content", icon: LayoutGrid,
-    permission: "roomShowcase.read",
-    children: [
-      { label: "Room Showcase", href: "/content/room-showcase" },
-    ],
-  },
-  {
-    label: "Procurement", href: "/procurement", icon: Truck,
-    permission: "procurement.read",
-  },
-  {
-    label: "Finance", href: "/finance", icon: Wallet,
-    permission: "finance.read",
-    children: [
-      { label: "Invoices", href: "/finance/invoices" },
-      { label: "Payments", href: "/finance/payments" },
-      { label: "Expenses", href: "/finance/expenses" },
-      { label: "Journals", href: "/finance/journals" },
-      { label: "Accounts", href: "/finance/accounts" },
-    ],
-  },
-  {
-    label: "Reports", href: "/reports", icon: BarChart3,
-    permission: "reports.read",
-  },
-  {
-    label: "WhatsApp", href: "/whatsapp", icon: MessageSquare,
-    permission: "whatsapp.read",
-  },
-  { label: "Audit", href: "/audit", icon: ClipboardList, permission: "audit.read" },
-  { label: "Notifications", href: "/notifications", icon: Bell },
-  { label: "Settings", href: "/settings", icon: Settings, permission: "settings.read" },
-];
+import { NAV, type NavItem } from "@/lib/nav-config";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -93,7 +22,7 @@ export function Sidebar() {
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          "flex flex-col border-r bg-card transition-all duration-200",
+          "hidden md:flex flex-col border-r bg-card transition-all duration-200",
           sidebarOpen ? "w-56" : "w-14"
         )}
       >

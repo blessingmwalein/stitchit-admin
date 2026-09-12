@@ -148,7 +148,7 @@ export function InvoiceFormModal({ open, onOpenChange }: InvoiceFormModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+      <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
         <DialogHeader className="shrink-0 px-6 pt-6 pb-4 border-b">
           <DialogTitle>New Invoice</DialogTitle>
         </DialogHeader>
@@ -177,7 +177,7 @@ export function InvoiceFormModal({ open, onOpenChange }: InvoiceFormModalProps) 
               )} />
 
               {/* Customer + Order */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="customerId" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Customer *</FormLabel>
@@ -216,7 +216,7 @@ export function InvoiceFormModal({ open, onOpenChange }: InvoiceFormModalProps) 
               </div>
 
               {/* Dates */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="issueDate" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Issue Date *</FormLabel>
@@ -244,35 +244,42 @@ export function InvoiceFormModal({ open, onOpenChange }: InvoiceFormModalProps) 
                   </Button>
                 </div>
 
-                {/* Header */}
-                <div className="grid grid-cols-[1fr_80px_100px_36px] gap-2 text-xs text-muted-foreground px-1 mb-1">
+                {/* Header — desktop only, mobile rows show inline labels instead */}
+                <div className="hidden sm:grid grid-cols-[1fr_80px_100px_36px] gap-2 text-xs text-muted-foreground px-1 mb-1">
                   <span>Description</span><span>Qty</span><span>Unit Price</span><span />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-3 sm:space-y-2">
                   {fields.map((field, idx) => (
-                    <div key={field.id} className="grid grid-cols-[1fr_80px_100px_36px] gap-2 items-start">
+                    <div
+                      key={field.id}
+                      className="rounded-lg border p-3 space-y-2 sm:border-0 sm:p-0 sm:space-y-0 sm:grid sm:grid-cols-[1fr_80px_100px_36px] sm:gap-2 sm:items-start"
+                    >
                       <FormField control={form.control} name={`items.${idx}.description`} render={({ field }) => (
                         <FormItem className="space-y-0">
                           <FormControl><Input placeholder="Description" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
-                      <FormField control={form.control} name={`items.${idx}.quantity`} render={({ field }) => (
-                        <FormItem className="space-y-0">
-                          <FormControl><Input type="number" min="0.01" step="0.01" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                      <FormField control={form.control} name={`items.${idx}.unitPrice`} render={({ field }) => (
-                        <FormItem className="space-y-0">
-                          <FormControl><Input type="number" min="0" step="0.01" placeholder="0.00" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                      <Button type="button" size="icon" variant="ghost" className="h-9 w-9 text-muted-foreground hover:text-destructive" onClick={() => remove(idx)} disabled={fields.length === 1}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="grid grid-cols-[1fr_1fr_36px] gap-2 items-end sm:contents">
+                        <FormField control={form.control} name={`items.${idx}.quantity`} render={({ field }) => (
+                          <FormItem className="space-y-0">
+                            <FormLabel className="sm:hidden text-xs text-muted-foreground">Qty</FormLabel>
+                            <FormControl><Input type="number" min="0.01" step="0.01" {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                        <FormField control={form.control} name={`items.${idx}.unitPrice`} render={({ field }) => (
+                          <FormItem className="space-y-0">
+                            <FormLabel className="sm:hidden text-xs text-muted-foreground">Unit Price</FormLabel>
+                            <FormControl><Input type="number" min="0" step="0.01" placeholder="0.00" {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                        <Button type="button" size="icon" variant="ghost" className="h-9 w-9 self-end text-muted-foreground hover:text-destructive" onClick={() => remove(idx)} disabled={fields.length === 1}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -281,7 +288,7 @@ export function InvoiceFormModal({ open, onOpenChange }: InvoiceFormModalProps) 
               <Separator />
 
               {/* Totals */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="discountTotal" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Discount ($)</FormLabel>

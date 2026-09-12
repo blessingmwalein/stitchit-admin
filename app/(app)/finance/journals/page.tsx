@@ -120,6 +120,27 @@ const columns: ColumnDef<JournalEntry>[] = [
   },
 ];
 
+function JournalMobileCard({ entry, onClick }: { entry: JournalEntry; onClick: () => void }) {
+  const status = (entry as any).status as string | undefined;
+  const d = (entry as any).entryDate ?? (entry as any).date;
+  return (
+    <div onClick={onClick} className="rounded-xl border bg-card p-3.5 space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-mono text-xs text-muted-foreground">{(entry as any).entryNumber ?? entry.journalNumber}</p>
+          <p className="font-medium truncate">{entry.memo ?? "—"}</p>
+        </div>
+        {status && <Badge variant="outline" className={`text-xs shrink-0 ${STATUS_COLORS[status] ?? ""}`}>{status}</Badge>}
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="tabular-nums text-emerald-700 font-medium">Dr ${Number(entry.totalDebit).toFixed(2)}</span>
+        <span className="tabular-nums text-blue-700 font-medium">Cr ${Number(entry.totalCredit).toFixed(2)}</span>
+      </div>
+      <p className="text-xs text-muted-foreground">{d ? format(new Date(d), "dd MMM yyyy") : "—"}</p>
+    </div>
+  );
+}
+
 const TODAY = format(new Date(), "yyyy-MM-dd");
 
 export default function JournalsPage() {
@@ -202,7 +223,7 @@ export default function JournalsPage() {
       </PageHeader>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-4 divide-x border-b bg-card">
+      <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 border-b bg-card">
         <div className="px-6 py-4">
           <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Entries</p>
           <p className="text-2xl font-normal tabular-nums mt-1">{statsRows.length}</p>
@@ -321,6 +342,7 @@ export default function JournalsPage() {
         onPageChange={setPage}
         loading={isLoading}
         onRowClick={(r) => setSelectedId((r as any).id)}
+        mobileCard={(r) => <JournalMobileCard entry={r} onClick={() => setSelectedId((r as any).id)} />}
       />
     </div>
   );

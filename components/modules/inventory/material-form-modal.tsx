@@ -119,7 +119,7 @@ export function MaterialFormModal({ open, onOpenChange, material, onCreated }: M
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg overflow-hidden flex flex-col p-0">
+      <DialogContent className="w-[95vw] sm:max-w-lg overflow-hidden flex flex-col p-0 max-h-[90vh]">
         <DialogHeader className="shrink-0 px-6 pt-6 pb-4 border-b">
           <DialogTitle>{isEdit ? "Edit Material" : "New Material"}</DialogTitle>
         </DialogHeader>
@@ -129,7 +129,7 @@ export function MaterialFormModal({ open, onOpenChange, material, onCreated }: M
             <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-4">
 
               {/* SKU + Name */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="sku" render={({ field }) => (
                   <FormItem>
                     <FormLabel>SKU *</FormLabel>
@@ -147,7 +147,7 @@ export function MaterialFormModal({ open, onOpenChange, material, onCreated }: M
               </div>
 
               {/* Category + UOM */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="categoryId" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category *</FormLabel>
@@ -189,7 +189,7 @@ export function MaterialFormModal({ open, onOpenChange, material, onCreated }: M
               )} />
 
               {/* Reorder */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="reorderLevel" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Reorder Level</FormLabel>

@@ -70,6 +70,25 @@ function safeDate(d: string | null | undefined) {
   try { return format(new Date(d), "dd MMM yyyy"); } catch { return "—"; }
 }
 
+function PaymentMobileCard({ payment, onClick }: { payment: PaymentRow; onClick: () => void }) {
+  return (
+    <div onClick={onClick} className="rounded-xl border bg-card p-3.5 space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-mono text-xs text-muted-foreground">{payment.receiptNumber ?? "—"}</p>
+          <p className="font-medium truncate">{customerName(payment)}</p>
+        </div>
+        {typeBadge(payment)}
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-semibold text-green-600">${Number(payment.amount).toFixed(2)}</span>
+        <span className="text-xs text-muted-foreground">{methodLabel(payment.method)}</span>
+      </div>
+      <p className="text-xs text-muted-foreground">{safeDate(payment.paymentDate)}</p>
+    </div>
+  );
+}
+
 const columns: ColumnDef<PaymentRow>[] = [
   {
     header: "Receipt #",
@@ -319,7 +338,7 @@ export default function PaymentsPage() {
       </PageHeader>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-3 divide-x border-b bg-card">
+      <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y sm:divide-y-0 border-b bg-card">
         <div className="px-6 py-4">
           <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Total Received</p>
           <p className="text-2xl font-normal tabular-nums mt-1">${statsTotalAmount.toFixed(2)}</p>
@@ -430,6 +449,7 @@ export default function PaymentsPage() {
         onPageChange={setPage}
         loading={isLoading}
         onRowClick={(r) => setSelected(r)}
+        mobileCard={(r) => <PaymentMobileCard payment={r} onClick={() => setSelected(r)} />}
       />
     </div>
   );

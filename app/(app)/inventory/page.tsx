@@ -192,6 +192,48 @@ function MaterialDrawer({
   );
 }
 
+// ── Mobile card ───────────────────────────────────────────────────────────────
+
+function MaterialMobileCard({ material, onClick, onEdit, onDelete }: {
+  material: Material; onClick: () => void; onEdit: () => void; onDelete: () => void;
+}) {
+  const cat = material.category;
+  const catName = typeof cat === "string" ? cat : (cat as any)?.name ?? "—";
+  const onHand = Number(material.qtyOnHand ?? 0);
+  const reorder = Number(material.reorderLevel ?? 0);
+  const isLow = onHand <= reorder && reorder > 0;
+  const value = onHand * Number(material.avgCost ?? 0);
+
+  return (
+    <div onClick={onClick} className="rounded-xl border bg-card p-3.5 space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-mono text-xs text-muted-foreground">{material.sku}</p>
+          <p className="font-medium truncate">
+            {material.name}{material.color ? <span className="text-muted-foreground"> · {material.color}</span> : ""}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">{catName} · {material.uom}</p>
+        </div>
+        <div className="flex items-center gap-0.5 shrink-0">
+          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); onEdit(); }}>
+            <Pencil className="h-3.5 w-3.5" />
+          </Button>
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="flex items-center gap-1 font-medium tabular-nums">
+          {onHand.toFixed(2)} on hand
+          {isLow && <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />}
+        </span>
+        <span className="text-muted-foreground">${value.toFixed(2)} value</span>
+      </div>
+    </div>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function InventoryPage() {
@@ -349,6 +391,16 @@ export default function InventoryPage() {
         onPageSizeChange={setPageSize}
         loading={isLoading}
         onRowClick={(r) => setSelectedId(r.id)}
+        mobileCard={(r) => (
+          <MaterialMobileCard
+            material={r}
+            onClick={() => setSelectedId(r.id)}
+            onEdit={() => setEditingMaterial(r)}
+            onDelete={() => {
+              if (confirm("Delete this material? This cannot be undone.")) deleteMut.mutate(r.id);
+            }}
+          />
+        )}
       />
     </div>
   );

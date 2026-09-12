@@ -84,6 +84,31 @@ const columns: ColumnDef<WhatsAppMessage>[] = [
   },
 ];
 
+function MessageMobileCard({ message }: { message: WhatsAppMessage }) {
+  const contact = message.customerName ?? (message.direction === "INBOUND" ? message.from : message.to);
+  const number = message.direction === "INBOUND" ? message.from : message.to;
+  return (
+    <div className="rounded-xl border bg-card p-3.5 space-y-1.5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex items-center gap-1.5">
+          {message.direction === "INBOUND"
+            ? <ArrowDownLeft className="h-3.5 w-3.5 text-purple-500 shrink-0" />
+            : <ArrowUpRight className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
+          <div className="min-w-0">
+            <p className="font-medium text-sm truncate">{contact}</p>
+            <p className="text-xs text-muted-foreground">{number}</p>
+          </div>
+        </div>
+        <Badge variant="secondary" className={cn("text-xs shrink-0", STATUS_COLORS[message.status] ?? "")}>
+          {message.status.toLowerCase()}
+        </Badge>
+      </div>
+      <p className="text-sm line-clamp-2">{message.body}</p>
+      <p className="text-xs text-muted-foreground">{format(new Date(message.createdAt), "dd MMM HH:mm")}</p>
+    </div>
+  );
+}
+
 export default function WhatsAppPage() {
   const [page, setPage] = useQueryState("page", { defaultValue: 1, parse: Number });
   const [pageSize] = useQueryState("pageSize", { defaultValue: 25, parse: Number });
@@ -99,7 +124,11 @@ export default function WhatsAppPage() {
       <PageHeader title="WhatsApp" description="Inbound & outbound messages">
         <Button size="sm">Send message</Button>
       </PageHeader>
-      <DataTable columns={columns} data={data?.data ?? []} total={data?.meta?.total} page={page} pageSize={pageSize} onPageChange={setPage} loading={isLoading} />
+      <DataTable
+        columns={columns} data={data?.data ?? []} total={data?.meta?.total}
+        page={page} pageSize={pageSize} onPageChange={setPage} loading={isLoading}
+        mobileCard={(r) => <MessageMobileCard message={r} />}
+      />
     </div>
   );
 }
